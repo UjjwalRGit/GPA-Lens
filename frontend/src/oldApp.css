@@ -1,0 +1,1440 @@
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f1f8e9 100%);
+  min-height: 100vh;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+}
+
+/* Header Styles */
+.header {
+  background: linear-gradient(135deg, #1976d2 0%, #388e3c 100%);
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.headerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo::before {
+  content: "📊";
+  font-size: 1.5rem;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.navElems {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.welcomeMessage {
+  color: #e8f5e8;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.welcomeMessage::before {
+  content: "👋";
+}
+
+/* Button Styles */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+.btn-secondary {
+  background: #78909c;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #607d8b;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+  color: white;
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Auth Forms */
+.auth {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 20px;
+}
+
+.authForm {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #e3f2fd;
+}
+
+.authForm h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #1976d2;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.authForm h2::before {
+  content: "🔐";
+}
+
+.formField {
+  margin-bottom: 20px;
+}
+
+.formField label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #37474f;
+}
+
+.formField input, .formField select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.formField input:focus, .formField select:focus {
+  outline: none;
+  border-color: #2196f3;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.authLink {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.authLink a {
+  color: #2196f3;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.authLink a:hover {
+  text-decoration: underline;
+}
+
+.forgotPassword {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.forgotPassword a {
+  color: #4caf50;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgotPasswordText, .resetPasswordText {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Dashboard Styles */
+.dashboard {
+  padding: 20px 0;
+}
+
+.dashboardHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.dashboardHeader h1 {
+  font-size: 3rem;
+  color: #1976d2;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.dashboardHeader h1::before {
+  content: "🎓";
+}
+
+.gpaSummary {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.gpaCard {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-width: 200px;
+  border: 2px solid #e3f2fd;
+}
+
+.gpaCard h3 {
+  color: #37474f;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gpaCard:first-child h3::before {
+  content: "⭐";
+}
+
+.gpaCard:last-child h3::before {
+  content: "📚";
+}
+
+.gpa {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dashboardControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 10px;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+/* Add Class Form */
+.addClassForm {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  border: 2px solid #e8f5e8;
+}
+
+.addClassForm h3 {
+  color: #1976d2;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.addClassForm h3::before {
+  content: "➕";
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #37474f;
+}
+
+.formGroup input, .formGroup select {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.formGroup input:focus, .formGroup select:focus {
+  outline: none;
+  border-color: #2196f3;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.formActions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* Class List & Cards */
+.classList, .semesterView {
+  margin-top: 20px;
+}
+
+.classList h3 {
+  color: #1976d2;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.classList h3::before {
+  content: "📋";
+}
+
+.classesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.classCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  border: 2px solid #f0f8f0;
+  transition: all 0.3s ease;
+}
+
+.classCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+  border-color: #4caf50;
+}
+
+.classHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f5f5f5;
+}
+
+.classHeader h4 {
+  color: #1976d2;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.classHeader h4::before {
+  content: "📖";
+}
+
+.classActions {
+  display: flex;
+  gap: 8px;
+}
+
+.classDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.classDetail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.classDetail .label {
+  font-weight: 600;
+  color: #666;
+}
+
+.classDetail .value {
+  font-weight: 700;
+  color: #2196f3;
+}
+
+/* Semester View */
+.semesterSection {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e8f5e8;
+  overflow: hidden;
+}
+
+.semesterHeader {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  padding: 20px 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.semesterHeader:hover {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e0f2e0 100%);
+}
+
+.semesterInfo h3 {
+  color: #1976d2;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.semesterInfo h3::before {
+  content: "📅";
+}
+
+.semesterStats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.semesterStats span {
+  color: #666;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.semesterGPA::before {
+  content: "⭐";
+}
+
+.semesterCredits::before {
+  content: "📚";
+}
+
+.classCount::before {
+  content: "📊";
+}
+
+.expandeIcon {
+  transition: transform 0.3s ease;
+  font-size: 1.2rem;
+  color: #4caf50;
+}
+
+.expandeIcon.expanded {
+  transform: rotate(180deg);
+}
+
+.semesterClasses {
+  padding: 25px;
+}
+
+/* Update Class Form */
+.updateClassForm {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.updateClassUI {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.updateClassUI h3 {
+  color: #1976d2;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.updateClassUI h3::before {
+  content: "✏️";
+}
+
+/* Grade Calculator Styles */
+.calculator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+  padding: 20px;
+}
+
+.calcContent {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 2px solid #e3f2fd;
+}
+
+.calcHeader {
+  background: linear-gradient(135deg, #1976d2 0%, #4caf50 100%);
+  color: white;
+  padding: 25px 30px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calcHeader h2 {
+  font-size: 1.8rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.closeButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.calcBody {
+  padding: 30px;
+}
+
+.calcText {
+  margin-bottom: 30px;
+}
+
+.gradeDisplay {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.current, .projectedGrade {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  padding: 25px;
+  border-radius: 16px;
+  text-align: center;
+  border: 2px solid #e3f2fd;
+  position: relative;
+  overflow: hidden;
+}
+
+.current::before {
+  content: "📈";
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+
+.projectedGrade::before {
+  content: "🎯";
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+
+.current h3, .projectedGrade h3 {
+  color: #37474f;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.gradeValue {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+
+.current small, .projectedGrade small {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.weightWarning {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffecb3 100%);
+  color: #ef6c00;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid #ffcc02;
+  font-weight: 500;
+  text-align: center;
+}
+
+.categories h3 {
+  color: #1976d2;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.categoriesList {
+  margin-bottom: 25px;
+}
+
+.category {
+  background: white;
+  border: 2px solid #f0f8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.category:hover {
+  border-color: #4caf50;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.1);
+}
+
+.categoryUpdates {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.nameInput {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.nameInput:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.weight {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #f8f9fa;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.weightInput {
+  width: 60px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  text-align: center;
+}
+
+.weightInput:focus {
+  outline: none;
+}
+
+.removeCategoryButton {
+  background: #ffebee;
+  border: 2px solid #ffcdd2;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.removeCategoryButton:hover {
+  background: #f44336;
+  border-color: #f44336;
+  color: white;
+}
+
+.categoryGradeInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 15px;
+  align-items: end;
+}
+
+.pointsInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pointsInputs label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.pointsInput {
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.pointsInput:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.categoryGrade {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  color: #2e7d32;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+  border: 2px solid #4caf50;
+  min-width: 80px;
+}
+
+.addCategory {
+  border-top: 2px solid #f0f0f0;
+  padding-top: 20px;
+}
+
+.addCategoryButton {
+  width: 100%;
+  padding: 15px;
+  font-size: 1rem;
+  border: 2px dashed #4caf50;
+  background: #f8fff8;
+  color: #4caf50;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.addCategoryButton:hover {
+  background: #e8f5e8;
+  border-style: solid;
+}
+
+.addCategoryForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: end;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+}
+
+.addWeight {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.addCategoryActions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Delete Popup */
+.deleteOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+  padding: 20px;
+}
+
+.deleteContent {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.deleteHeader h3 {
+  color: #f44336;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.deleteHeader h3::before {
+  content: "⚠️";
+}
+
+.deleteBody {
+  margin-bottom: 25px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.deleteActions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+/* Messages */
+.errorMessage {
+  background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+  color: #c62828;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #f8bbd9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.errorMessage::before {
+  content: "❌";
+}
+
+.resetMessage {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+  color: #2e7d32;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #c8e6c9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resetMessage::before {
+  content: "✅";
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.loading::before {
+  content: "⏳";
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.noClasses {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  color: #666;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.noClasses::before {
+  content: "📚";
+  font-size: 2rem;
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(135deg, #263238 0%, #37474f 100%);
+  color: white;
+  padding: 40px 0 20px;
+  margin-top: 60px;
+}
+
+.footerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footerContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.footerSection h4 {
+  color: #4caf50;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footerSection:first-child h4::before {
+  content: "📊";
+}
+
+.footerSection:nth-child(2) h4::before {
+  content: "👨‍💻";
+}
+
+.footerSection:last-child h4::before {
+  content: "📧";
+}
+
+.footerSection p {
+  color: #b0bec5;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.footerLink {
+  color: #81c784;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footerLink:hover {
+  color: #4caf50;
+  text-decoration: underline;
+}
+
+.contactLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footerBottom {
+  border-top: 1px solid #455a64;
+  padding-top: 20px;
+  text-align: center;
+  color: #90a4ae;
+}
+
+/* GPA Graph Styles */
+
+.gpaGraph {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin: 30px 0;
+  border: 2px solid #e8f5e8;
+  overflow: hidden;
+}
+
+.graphHeader {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  padding: 25px 30px;
+  border-bottom: 2px solid #e3f2fd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.graphHeader h3 {
+  color: #1976d2;
+  font-size: 1.5rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.graphHeader h3::before {
+  content: "📊";
+}
+
+.graphLegend {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.legendValue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.referenceLine {
+  width: 12px;
+  height: 2px;
+  background: repeating-linear-gradient(
+    to right,
+    #666 0px,
+    #666 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  border-radius: 1px;
+}
+
+.graphContainer {
+  padding: 30px;
+  background: white;
+}
+
+.graphStats {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  padding: 20px 30px;
+  border-top: 1px solid #e0e0e0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+/* Custom Tooltip Styles */
+.gpaToolTip {
+  background: white;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.9rem;
+}
+
+.toolTipLabel {
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.toolTipGPA, .toolTipCredits {
+  margin: 4px 0;
+  color: #666;
+}
+
+.toolTipValue {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+/* Loading and Error States */
+.gpaGraph.loading, .gpaGraph.error, .gpaGraph.empty {
+  padding: 40px;
+}
+
+.gpaGraph .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.gpaGraph .loading::before {
+  content: "📊";
+  margin-right: 10px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .headerContainer {
+    padding: 0 15px;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .navElems {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .dashboardHeader h1 {
+    font-size: 2rem;
+  }
+  
+  .gpaSummary {
+    gap: 15px;
+  }
+  
+  .gpaCard {
+    min-width: 150px;
+    padding: 20px;
+  }
+  
+  .dashboardControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .viewToggle {
+    justify-content: center;
+  }
+
+  .dashboard-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .classesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .classHeader {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .classActions {
+    justify-content: center;
+  }
+  
+  .semesterStats {
+    justify-content: center;
+  }
+  
+  .authForm {
+    padding: 30px 20px;
+  }
+  
+  .formActions, .deleteActions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    justify-content: center;
+  }
+
+  /* Grade Calculator Mobile Styles */
+  .calcContent {
+    margin: 10px;
+    max-height: 95vh;
+  }
+
+  .calcHeader {
+    padding: 20px;
+  }
+
+  .calcHeader h2 {
+    font-size: 1.4rem;
+  }
+
+  .calcBody {
+    padding: 20px;
+  }
+
+  .gradeDisplay {
+    grid-template-columns: 1fr;
+  }
+
+  .gradeValue {
+    font-size: 2.5rem;
+  }
+
+  .categoryUpdates {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .nameInput {
+    min-width: unset;
+  }
+
+  .weight {
+    align-self: flex-start;
+  }
+
+  .categoryGradeInfo {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .addCategoryForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .addCategoryActions {
+    justify-content: center;
+  }
+
+  .graphHeader {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .graphLegend {
+    justify-content: center;
+  }
+  
+  .graphContainer {
+    padding: 20px 10px;
+  }
+  
+  .graphStats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 20px;
+  }
+  
+  .legendValue {
+    font-size: 0.8rem;
+  }
+  
+  .statValue {
+    font-size: 1.2rem;
+  }
+}

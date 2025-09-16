@@ -1,0 +1,118 @@
+/* Dashboard Styles */
+.dashboard {
+  padding: 20px 0;
+}
+
+.dashboardHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.dashboardHeader h1 {
+  font-size: 3rem;
+  color: #1976d2;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.dashboardHeader h1::before {
+  content: "🎓";
+}
+
+.gpaSummary {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.gpaCard {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-width: 200px;
+  border: 2px solid #e3f2fd;
+}
+
+.gpaCard h3 {
+  color: #37474f;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gpaCard:first-child h3::before {
+  content: "⭐";
+}
+
+.gpaCard:last-child h3::before {
+  content: "📚";
+}
+
+.gpa {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2196f3 0%, #4caf50 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dashboardControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 10px;
+}
+
+.dashboardActions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboardHeader h1 {
+    font-size: 2rem;
+  }
+  
+  .gpaSummary {
+    gap: 15px;
+  }
+  
+  .gpaCard {
+    min-width: 150px;
+    padding: 20px;
+  }
+  
+  .dashboardControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .viewToggle {
+    justify-content: center;
+  }
+
+  .dashboardActions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}

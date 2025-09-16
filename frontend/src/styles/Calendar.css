@@ -1,0 +1,565 @@
+/* Calendar Styles */
+.calendar {
+  padding: 20px 0;
+}
+
+.calendarHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.calendarHeader h1 {
+  font-size: 3rem;
+  color: #1976d2;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.calendarHeader h1::before {
+  content: "📅";
+}
+
+.calendarControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 10px;
+}
+
+/* Calendar View Styles */
+.calendarView {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border: 2px solid #e8f5e8;
+}
+
+.calendarNavigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.currentMonth {
+  color: #1976d2;
+  font-size: 2rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dayHeader {
+  background: #1976d2;
+  color: white;
+  padding: 15px 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.calendarDay {
+  background: white;
+  min-height: 120px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendarDay:hover {
+  background: #f8f9fa;
+}
+
+.calendarDay.otherMonth {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.calendarDay.today {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f1f8e9 100%);
+  border: 2px solid #4caf50;
+}
+
+.dayNumber {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.dayEvents {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eventItem {
+  background: #2196f3;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.eventItem:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.priorityIcon {
+  font-size: 0.6rem;
+}
+
+.eventTitle {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.completedIcon {
+  font-size: 0.6rem;
+}
+
+.moreEvents {
+  color: #666;
+  font-size: 0.7rem;
+  text-align: center;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.calendarLegend {
+  margin-top: 30px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.calendarLegend h4 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.legendItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Event List Styles */
+.eventList {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border: 2px solid #e8f5e8;
+}
+
+.eventFilters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filterGroup label {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.filterSelect {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+}
+
+.eventCount {
+  color: #666;
+  font-weight: 500;
+}
+
+.eventsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.eventCard {
+  background: white;
+  border: 2px solid #f0f8f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.eventCard:hover {
+  border-color: #4caf50;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.1);
+}
+
+.eventCard.completed {
+  opacity: 0.7;
+  border-color: #e0e0e0;
+}
+
+.eventCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.eventInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eventType {
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.eventPriority {
+  font-size: 1rem;
+}
+
+.eventActions {
+  display: flex;
+  gap: 8px;
+}
+
+.eventCardBody {
+  margin-bottom: 15px;
+}
+
+.eventTitle {
+  color: #1976d2;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.eventDescription {
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.eventDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.eventDate,
+.eventClass,
+.eventReminder {
+  color: #666;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.eventTime {
+  margin-left: 5px;
+  font-weight: 600;
+}
+
+.noEvents {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Add Event Form Styles */
+.addEventOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.addEventForm {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.addEventForm h3 {
+  color: #1976d2;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.addEventForm h3::before {
+  content: "➕";
+}
+
+/* Event Modal Styles */
+.eventModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.eventModal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 2px solid #e3f2fd;
+}
+
+.eventModalHeader {
+  background: linear-gradient(135deg, #1976d2 0%, #4caf50 100%);
+  color: white;
+  padding: 25px 30px;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitleSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.eventTypeIndicator {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.eventModalHeader h3 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.modalCloseButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalCloseButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.eventModalForm {
+  padding: 30px;
+}
+
+.checkboxGroup {
+  margin: 20px 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4caf50;
+}
+
+.checkboxText {
+  color: #333;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.primaryActions {
+  display: flex;
+  gap: 10px;
+}
+
+.secondaryActions {
+  display: flex;
+  gap: 10px;
+}
+
+/* IMPORTANT: Higher z-index for delete modal when inside event modal */
+.eventModalOverlay .deleteOverlay {
+  z-index: 1001 !important;
+}
+
+/* Alternative approach - ensure delete modals always appear on top */
+.deleteOverlay {
+  z-index: 1002 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .calendarHeader h1 {
+    font-size: 2rem;
+  }
+  
+  .calendarControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .viewToggle {
+    justify-content: center;
+  }
+  
+  .calendarNavigation {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .currentMonth {
+    font-size: 1.5rem;
+  }
+  
+  .calendarDay {
+    min-height: 80px;
+  }
+  
+  .legendItems {
+    justify-content: center;
+  }
+  
+  .eventFilters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .eventCardHeader {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .eventActions {
+    justify-content: center;
+  }
+  
+  .modalActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .primaryActions,
+  .secondaryActions {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,103 @@
+/* Class List & Cards */
+.classList, .semesterView {
+  margin-top: 20px;
+}
+
+.classList h3 {
+  color: #1976d2;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.classList h3::before {
+  content: "📋";
+}
+
+.classesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.classCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  border: 2px solid #f0f8f0;
+  transition: all 0.3s ease;
+}
+
+.classCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+  border-color: #4caf50;
+}
+
+.classHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f5f5f5;
+}
+
+.classHeader h4 {
+  color: #1976d2;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.classHeader h4::before {
+  content: "📖";
+}
+
+.classActions {
+  display: flex;
+  gap: 8px;
+}
+
+.classDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.classDetail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.classDetail .label {
+  font-weight: 600;
+  color: #666;
+}
+
+.classDetail .value {
+  font-weight: 700;
+  color: #2196f3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .classesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .classHeader {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .classActions {
+    justify-content: center;
+  }
+}

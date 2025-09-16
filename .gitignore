@@ -1,0 +1,32 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Build outputs
+build/
+dist/
+
+# Logs
+backend/logs/
+*.log
+npm-debug.log*
+yarn-error.log
+
+# Cache
+.eslintcache
+
+# macOS specific
+.DS_Store
+
+# Test coverage
+coverage/
+
+# Temporary files
+tmp/
+
+# Backend files
+backend/serverBackup.js
+backend/serverOld.js
+

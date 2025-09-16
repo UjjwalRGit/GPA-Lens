@@ -1,0 +1,184 @@
+/* GPA Graph Styles */
+.gpaGraph {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin: 30px 0;
+  border: 2px solid #e8f5e8;
+  overflow: hidden;
+}
+
+.graphHeader {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  padding: 25px 30px;
+  border-bottom: 2px solid #e3f2fd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.graphHeader h3 {
+  color: #1976d2;
+  font-size: 1.5rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.graphHeader h3::before {
+  content: "📊";
+}
+
+.graphLegend {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.legendValue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.referenceLine {
+  width: 12px;
+  height: 2px;
+  background: repeating-linear-gradient(
+    to right,
+    #666 0px,
+    #666 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  border-radius: 1px;
+}
+
+.graphContainer {
+  padding: 30px;
+  background: white;
+}
+
+.graphStats {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  padding: 20px 30px;
+  border-top: 1px solid #e0e0e0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+/* Custom Tooltip Styles */
+.gpaToolTip {
+  background: white;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.9rem;
+}
+
+.toolTipLabel {
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.toolTipGPA, .toolTipCredits {
+  margin: 4px 0;
+  color: #666;
+}
+
+.toolTipValue {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+/* Loading and Error States */
+.gpaGraph.loading, .gpaGraph.error, .gpaGraph.empty {
+  padding: 40px;
+}
+
+.gpaGraph .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.gpaGraph .loading::before {
+  content: "📊";
+  margin-right: 10px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .graphHeader {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .graphLegend {
+    justify-content: center;
+  }
+  
+  .graphContainer {
+    padding: 20px 10px;
+  }
+  
+  .graphStats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 20px;
+  }
+  
+  .legendValue {
+    font-size: 0.8rem;
+  }
+  
+  .statValue {
+    font-size: 1.2rem;
+  }
+}

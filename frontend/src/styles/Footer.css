@@ -1,0 +1,71 @@
+/* Footer Styles */
+.footer {
+  background: linear-gradient(135deg, #263238 0%, #37474f 100%);
+  color: white;
+  padding: 40px 0 20px;
+  margin-top: 60px;
+}
+
+.footerContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footerContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.footerSection h4 {
+  color: #4caf50;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footerSection:first-child h4::before {
+  content: "📊";
+}
+
+.footerSection:nth-child(2) h4::before {
+  content: "👨‍💻";
+}
+
+.footerSection:last-child h4::before {
+  content: "📧";
+}
+
+.footerSection p {
+  color: #b0bec5;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.footerLink {
+  color: #81c784;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footerLink:hover {
+  color: #4caf50;
+  text-decoration: underline;
+}
+
+.contactLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footerBottom {
+  border-top: 1px solid #455a64;
+  padding-top: 20px;
+  text-align: center;
+  color: #90a4ae;
+}

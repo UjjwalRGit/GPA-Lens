@@ -1,0 +1,83 @@
+/* Semester View */
+.semesterSection {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e8f5e8;
+  overflow: hidden;
+}
+
+.semesterHeader {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  padding: 20px 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.semesterHeader:hover {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e0f2e0 100%);
+}
+
+.semesterInfo h3 {
+  color: #1976d2;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.semesterInfo h3::before {
+  content: "📅";
+}
+
+.semesterStats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.semesterStats span {
+  color: #666;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.semesterGPA::before {
+  content: "⭐";
+}
+
+.semesterCredits::before {
+  content: "📚";
+}
+
+.classCount::before {
+  content: "📊";
+}
+
+.expandeIcon {
+  transition: transform 0.3s ease;
+  font-size: 1.2rem;
+  color: #4caf50;
+}
+
+.expandeIcon.expanded {
+  transform: rotate(180deg);
+}
+
+.semesterClasses {
+  padding: 25px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .semesterStats {
+    justify-content: center;
+  }
+}
