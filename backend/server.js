@@ -20,7 +20,10 @@ console.log('[DEBUG] Loaded EMAILAPPPASS from .env:', process.env.EMAILAPPPASS ?
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
 app.use(requestLogger);
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -2125,7 +2128,6 @@ app.post('/api/auth/google', async (request, response) => {
 })
 
 //Testing new emails
-// Add these test endpoints to your server.js
 
 // 🧪 EMAIL TEMPLATE TEST ENDPOINT
 app.post('/api/test-all-email-templates', async (req, res) => {
@@ -2229,7 +2231,7 @@ setInterval(() => {
 }, 60000)
 
 
-const Port = process.env.SERVER_PORT;
+const Port = process.env.PORT || 8080;
 
 async function startServer() {
   await initDatabase();
