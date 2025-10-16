@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
 // Only load .env file in development
@@ -22,6 +25,9 @@ import { EmailTemplates } from './services/email-templates.js';
 console.log('[DEBUG] Loaded EMAIL from .env:', process.env.EMAIL);
 console.log('[DEBUG] Loaded EMAILAPPPASS from .env:', process.env.EMAILAPPPASS ? 'Loaded' : 'NOT LOADED');
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 app.use(express.json());
 app.use(cors({
@@ -37,6 +43,7 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
+    ca: fs.readFileSync(path.join(__dirname, 'ca.pem')),
     rejectUnauthorized: true 
   }
 };
