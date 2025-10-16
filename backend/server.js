@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
 // Only load .env file in development
@@ -25,9 +22,6 @@ import { EmailTemplates } from './services/email-templates.js';
 console.log('[DEBUG] Loaded EMAIL from .env:', process.env.EMAIL);
 console.log('[DEBUG] Loaded EMAILAPPPASS from .env:', process.env.EMAILAPPPASS ? 'Loaded' : 'NOT LOADED');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 app.use(express.json());
 app.use(cors({
@@ -37,28 +31,15 @@ app.use(cors({
 app.use(requestLogger);
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    ca: fs.readFileSync(path.join(__dirname, 'ca.pem')),
-    rejectUnauthorized: true 
-  }
-};
+
 
 let database;
 
 // Initialize database connection
 async function initDatabase() {
   try {
-    console.log('[DEBUG] Attempting to connect with config:', dbConfig);
-    database = await mysql.createConnection(dbConfig);
-    logger.info('Connected to mysql database', {
-        host: dbConfig.host,
-        database: dbConfig.database
-    })
+    database = await mysql.createConnection(process.env.DATABASE_URL);
+    logger.info('Connected to mysql database via URL');
     
     // Create users table if it doesn't exist
     const sql = `CREATE TABLE IF NOT EXISTS users (
