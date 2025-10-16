@@ -43,6 +43,7 @@ let database;
 // Initialize database connection
 async function initDatabase() {
   try {
+    console.log('[DEBUG] Attempting to connect with config:', dbConfig);
     database = await mysql.createConnection(dbConfig);
     logger.info('Connected to mysql database', {
         host: dbConfig.host,
