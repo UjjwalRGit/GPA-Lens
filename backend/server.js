@@ -1283,16 +1283,20 @@ app.post('/api/register', async (request, response) => { //works
         subject: 'Welcome to GPA Lens!',
         html: EmailTemplates.welcomeEmailTemplate(dashURL, username)
     };
-    
-    
-    await emailService.sendEmail( //send welcome email
-        username,
-        email,
-        emailFormat
-    );
+
+    response.status(201).json({ message: 'User created successfully' });
+
+    emailService.sendEmail(username, email, emailFormat)
+    .then(() => {
+        logger.info('Welcome email sent successfully', { username });
+    })
+    .catch((error) => {
+        // If it fails, we just log it. The user is unaffected.
+        logger.error('Failed to send welcome email', { username, error: error.message });
+    });
 
     logger.info('User registered', { username, email, tableName, calendarName });
-    response.status(201).json({ message: 'User created successfully' });
+    // The response has already been sent, so the function ends here for the user.
   } catch (error) {
     logger.error('Registration error', {
         username: request.body?.username,
