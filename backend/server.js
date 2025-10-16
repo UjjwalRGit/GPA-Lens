@@ -591,6 +591,12 @@ app.put('/api/user/email', authenticateToken, async (request, response) => {
             'UPDATE users SET email = ?, email_last_changed = CURRENT_TIMESTAMP WHERE id = ?',
             [newEmail, userId], 'Update user email');
 
+        response.json({
+            message: 'Email updated successfully',
+            newEmail,
+            nextChangeDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
+        });
+        
         //Send confirmation emails
         try {
             //Email to old address
@@ -609,16 +615,15 @@ app.put('/api/user/email', authenticateToken, async (request, response) => {
                 html: EmailTemplates.emailChangeNewEmailTemplate(username)
             };
 
-            await emailService.sendEmail(user.email, username, oldEmailConfirmation);
-            await emailService.sendEmail(newEmail, username, newEmailConfirmation);
+            emailService.sendEmail(user.email, username, oldEmailConfirmation)
+                .catch(err => logger.warn('Failed to send old email confirmation', { userId, error: err.message }));
+        
+            emailService.sendEmail(newEmail, username, newEmailConfirmation)
+                .catch(err => logger.warn('Failed to send new email confirmation', { userId, error: err.message }));
+        
+            logger.info('Email updated successfully, notifications sent to background.', { userId, newEmail });
         } catch (emailError) {
-            logger.warn('Failed to send email change confirmation', {
-                userId,
-                username,
-                oldEmail: user.email,
-                newEmail,
-                error: emailError.message
-            });
+            logger.warn('Error queuing email change notifications', { userId, error: emailError.message });
         }
 
         logger.info('Email updated successfully', {
@@ -626,12 +631,6 @@ app.put('/api/user/email', authenticateToken, async (request, response) => {
             username,
             oldEmail: user.email,
             newEmail
-        });
-
-        response.json({
-            message: 'Email updated successfully',
-            newEmail,
-            nextChangeDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
         });
 
     } catch (error) {
@@ -689,6 +688,12 @@ app.put('/api/user/password', authenticateToken, async (request, response) => {
             'UPDATE users SET pass = ?, has_password = TRUE WHERE id = ?',
             [hashedNewPassword, userId], 'Update user password');
 
+        response.json({
+            message: user.has_password ? 'Password updated successfully' : 'Password created successfully',
+            hasPassword: true
+        });
+
+        
         //Send confirmation email
         try {
             const confirmationEmail = {
@@ -710,24 +715,17 @@ app.put('/api/user/password', authenticateToken, async (request, response) => {
                 `
             };
 
-            await emailService.sendEmail(user.email, username, confirmationEmail);
+            emailService.sendEmail(user.email, username, confirmationEmail)
+                .then(() => logger.info('Password change confirmation queued.', { userId }))
+                .catch(err => logger.warn('Failed to send password change confirmation', { userId, error: err.message }));
         } catch (emailError) {
-            logger.warn('Failed to send password change confirmation', {
-                userId,
-                username,
-                error: emailError.message
-            });
+            logger.warn('Error queuing password change email', { userId, error: emailError.message });
         }
 
         logger.info('Password updated successfully', {
             userId,
             username,
             wasFirstPassword: !user.has_password
-        });
-
-        response.json({
-            message: user.has_password ? 'Password updated successfully' : 'Password created successfully',
-            hasPassword: true
         });
 
     } catch (error) {
@@ -777,24 +775,6 @@ app.post('/api/user/create-password', authenticateToken, async (request, respons
             'UPDATE users SET pass = ?, has_password = TRUE WHERE id = ?',
             [hashedPassword, userId], 'Create password for Google user');
 
-        //Send confirmation email
-        try {
-            const passwordCreationEmail = {
-            from: `"GPA Lens" <${process.env.EMAIL}>`,
-            to: user.email,
-            subject: 'Password Created - Enhanced Security! 🔐',
-            html: EmailTemplates.passwordCreationEmailTemplate(username)
-        };
-
-            await emailService.sendEmail(user.email, username, passwordCreationEmail);
-        } catch (emailError) {
-            logger.warn('Failed to send password creation confirmation', {
-                userId,
-                username,
-                error: emailError.message
-            });
-        }
-
         logger.info('Password created for Google user', {
             userId,
             username
@@ -804,6 +784,22 @@ app.post('/api/user/create-password', authenticateToken, async (request, respons
             message: 'Password created successfully',
             hasPassword: true
         });
+
+        //Send confirmation email
+        try {
+            const passwordCreationEmail = {
+            from: `"GPA Lens" <${process.env.EMAIL}>`,
+            to: user.email,
+            subject: 'Password Created - Enhanced Security! 🔐',
+            html: EmailTemplates.passwordCreationEmailTemplate(username)
+        };
+
+            emailService.sendEmail(user.email, username, passwordCreationEmail)
+                .then(() => logger.info('Password creation confirmation queued.', { userId }))
+                .catch(err => logger.warn('Failed to send password creation confirmation', { userId, error: err.message }));
+        } catch (emailError) {
+            logger.warn('Error queuing password creation email', { userId, error: emailError.message });
+        }
 
     } catch (error) {
         logger.error('Create password error', {
@@ -1130,34 +1126,6 @@ app.delete('/api/user/account', authenticateToken, async (request, response) => 
             await database.commit();
             logger.info('Committed deletion transaction', { userId, username });
 
-            // Send farewell email (don't fail deletion if email fails)
-            try {
-                const farewellEmail = {
-                from: `"GPA Lens" <${process.env.EMAIL}>`,
-                to: userEmail,
-                subject: 'Account Deleted - We\'ll miss you! 👋',
-                html: EmailTemplates.accountDeletionEmailTemplate(userUsername)
-            };
-
-                await emailService.sendEmail(userEmail, userUsername, farewellEmail);
-                logger.info('Farewell email sent successfully', { userEmail, userUsername });
-            } catch (emailError) {
-                // Don't fail the deletion if email fails
-                logger.warn('Failed to send farewell email', {
-                    userId,
-                    username,
-                    email: userEmail,
-                    error: emailError.message
-                });
-            }
-
-            logger.info('Account successfully deleted', {
-                userId,
-                username: userUsername,
-                tableName,
-                calendarName
-            });
-
             response.json({ 
                 message: 'Account deleted successfully',
                 deletedData: {
@@ -1165,6 +1133,29 @@ app.delete('/api/user/account', authenticateToken, async (request, response) => 
                     classTable: tableName,
                     calendarTable: calendarName
                 }
+            });
+
+            // Send farewell email (don't fail deletion if email fails)
+            try {
+                const farewellEmail = {
+                from: `"GPA Lens" <${process.env.EMAIL}>`,
+                to: userEmail,
+                subject: 'Account Deleted - We\'ll miss you! 👋',
+                html: EmailTemplates.accountDeletionEmailTemplate(userUsername)};
+
+                emailService.sendEmail(userEmail, userUsername, farewellEmail)
+                    .then(() => logger.info('Farewell email queued.', { username: userUsername }))
+                    .catch(err => logger.warn('Failed to send farewell email', { username: userUsername, error: err.message }));
+            } catch (emailError) {
+                // Don't fail the deletion if email fails
+                logger.warn('Error queuing farewell email', { username: userUsername, error: emailError.message });
+            }
+
+            logger.info('Account successfully deleted', {
+                userId,
+                username: userUsername,
+                tableName,
+                calendarName
             });
 
         } catch (transactionError) {
@@ -1628,14 +1619,11 @@ app.post('/api/forgot-password', async (request, response) => { //works!
             html: EmailTemplates.forgotPasswordEmailTemplate(resetURL, user.username)
         };
 
-        await emailService.sendEmail(user.email, user.username, emailFormat);
-
-        logger.info('Password reset email sent', {
-            email,
-            tokenExpiry: new Date(expiry).toISOString()
-        });
-
         response.status(200).json({ message: 'Password reset instructions sent to your email! '});
+
+        emailService.sendEmail(user.email, user.username, emailFormat)
+            .then(() => logger.info('Password reset email sent.', { email }))
+            .catch(err => logger.error('Failed to send password reset email', { email, error: err.message }));
     } catch (error) {
         logger.error('Forgot password error', {
             email: request.body?.email,
@@ -2080,7 +2068,9 @@ app.post('/api/auth/google', async (request, response) => {
                 html: EmailTemplates.googleWelcomeEmailTemplate(dashURL, username)
             };
 
-            await emailService.sendEmail(email, username, emailFormat);
+            emailService.sendEmail(email, username, emailFormat)
+                .then(() => logger.info('Google welcome email queued.', { username }))
+                .catch(err => logger.warn('Failed to send Google welcome email', { username, error: err.message }));
 
             logger.info('New Google user created', {
                 userId: user.id,
