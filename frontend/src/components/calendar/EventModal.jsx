@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { calendarService } from '../../services/calendar-service.js';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
+    const { isGuestMode, updateGuestEvent, deleteGuestEvent } = useGuestMode();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -35,7 +37,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
     useEffect(() => {
         if (event) {
             setFormData({
-                title: event.event_name || '',
+                title: event.title || event.event_name || '',
                 description: event.description || '',
                 event_type: event.event_type || 'assignment',
                 event_date: event.event_date ? event.event_date.split('T')[0] : '',
@@ -87,8 +89,18 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                 is_completed: event.is_completed
             };
 
-            const response = await calendarService.updateEvent(event.id, updatedData);
-            onEventUpdated(response.data);
+            if (isGuestMode) {
+                // Update in guest storage
+                updateGuestEvent(event.id, updatedData);
+                onEventUpdated({
+                    ...updatedData,
+                    id: event.id
+                });
+            } else {
+                // Update via API
+                const response = await calendarService.updateEvent(event.id, updatedData);
+                onEventUpdated(response.data);
+            }
         } catch (error) {
             console.error('Error updating event:', error);
             setError(error.response?.data?.error || 'Failed to update event');
@@ -100,8 +112,20 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
     async function handleToggleComplete() {
         setLoading(true);
         try {
-            const response = await calendarService.toggleEventCompletion(event.id);
-            onEventUpdated(response.data);
+            const updatedData = {
+                ...event,
+                is_completed: !event.is_completed
+            };
+
+            if (isGuestMode) {
+                // Update in guest storage
+                updateGuestEvent(event.id, updatedData);
+                onEventUpdated(updatedData);
+            } else {
+                // Update via API
+                const response = await calendarService.toggleEventCompletion(event.id);
+                onEventUpdated(response.data);
+            }
         } catch (error) {
             console.error('Error toggling completion:', error);
             setError('Failed to update completion status');
@@ -116,8 +140,15 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
 
         setDeleting(true);
         try {
-            await calendarService.deleteEvent(event.id);
-            onEventDeleted(event.id);
+            if (isGuestMode) {
+                // Delete from guest storage
+                deleteGuestEvent(event.id);
+                onEventDeleted(event.id);
+            } else {
+                // Delete via API
+                await calendarService.deleteEvent(event.id);
+                onEventDeleted(event.id);
+            }
         } catch (error) {
             console.error('Error deleting event:', error);
             setError('Failed to delete event');
@@ -149,13 +180,15 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                 <div
                                     className="bg-white/20 backdrop-blur-sm text-white px-3 md:px-4 py-1 md:py-2 rounded-xl text-sm font-bold capitalize"
                                 >
-                                    {event.event_type.replace('_', ' ')}
+                                    {event.event_type ? event.event_type.replace('_', ' ') : 'Event'}
                                 </div>
-                                <h3 className="text-2xl md:text-3xl font-black tracking-wide">Edit Event</h3>
+                                <h2 className="text-xl md:text-3xl font-black">
+                                    Edit Event
+                                </h2>
                             </div>
                             <button 
-                                onClick={onClose} 
-                                className="bg-white/20 backdrop-blur-sm border-0 text-white w-10 h-10 md:w-12 md:h-12 rounded-full text-lg cursor-pointer transition-all duration-300 flex items-center justify-center hover:bg-white/30 hover:scale-110"
+                                onClick={onClose}
+                                className="bg-white/20 backdrop-blur-sm text-white w-10 h-10 md:w-12 md:h-12 rounded-full text-lg cursor-pointer transition-all duration-300 flex items-center justify-center hover:bg-white/30 hover:scale-110 border-0"
                             >
                                 ✕
                             </button>
@@ -163,7 +196,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                     </div>
 
                     {/* Form Container */}
-                    <div className="max-h-[calc(95vh-200px)] overflow-y-auto">
+                    <div className="max-h-[calc(95vh-120px)] overflow-y-auto">
                         {error && (
                             <div className="mx-6 md:mx-8 mt-6">
                                 <div className="bg-gradient-to-r from-red-100 to-pink-100 border-2 border-red-300 text-red-800 px-4 md:px-6 py-3 md:py-4 rounded-2xl flex items-center gap-3 md:gap-4 shadow-lg">
@@ -173,7 +206,6 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                             </div>
                         )}
 
-                        {/* Form */}
                         <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
                             {/* Row 1: Title and Type */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -186,9 +218,10 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         name="title"
                                         value={formData.title}
                                         onChange={handleChange}
+                                        placeholder="e.g., Math Quiz 3"
                                         required
-                                        disabled={loading || deleting}
-                                        className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
+                                        disabled={loading}
+                                        className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     />
                                 </div>
 
@@ -201,7 +234,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         value={formData.event_type}
                                         onChange={handleChange}
                                         required
-                                        disabled={loading || deleting}
+                                        disabled={loading}
                                         className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     >
                                         {types.map(type => (
@@ -213,7 +246,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                 </div>
                             </div>
 
-                            {/* Row 2: Date, Time, Priority */}
+                            {/* Row 2: Date, Time, and Priority */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                                 <div className="flex flex-col">
                                     <label className="mb-2 font-bold text-purple-700 text-sm tracking-wide">
@@ -225,7 +258,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         value={formData.event_date}
                                         onChange={handleChange}
                                         required
-                                        disabled={loading || deleting}
+                                        disabled={loading}
                                         className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     />
                                 </div>
@@ -239,7 +272,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         name="event_time"
                                         value={formData.event_time}
                                         onChange={handleChange}
-                                        disabled={loading || deleting}
+                                        disabled={loading}
                                         className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     />
                                 </div>
@@ -252,7 +285,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         name="priority"
                                         value={formData.priority}
                                         onChange={handleChange}
-                                        disabled={loading || deleting}
+                                        disabled={loading}
                                         className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     >
                                         {priorities.map(priority => (
@@ -277,7 +310,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         onChange={handleChange}
                                         placeholder="e.g., CSCI"
                                         maxLength="4"
-                                        disabled={loading || deleting}
+                                        disabled={loading}
                                         className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     />
                                 </div>
@@ -292,7 +325,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         value={formData.class_id}
                                         onChange={handleChange}
                                         placeholder="e.g., 1001"
-                                        disabled={loading || deleting}
+                                        disabled={loading}
                                         className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     />
                                 </div>
@@ -308,7 +341,7 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                         onChange={handleChange}
                                         min="0"
                                         max="30"
-                                        disabled={loading || deleting}
+                                        disabled={loading}
                                         className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                     />
                                 </div>
@@ -325,73 +358,76 @@ function EventModal({ event, onEventUpdated, onEventDeleted, onClose }) {
                                     onChange={handleChange}
                                     placeholder="Add any additional details about the event..."
                                     rows="3"
-                                    disabled={loading || deleting}
+                                    disabled={loading}
                                     className="p-3 md:p-4 border-2 border-purple-200 rounded-xl text-base transition-all duration-300 bg-purple-50/50 placeholder-purple-400 resize-none focus:outline-none focus:border-purple-500 focus:bg-white focus:shadow-lg focus:shadow-purple-100 disabled:opacity-60 disabled:cursor-not-allowed hover:border-purple-300"
                                 />
                             </div>
-                        </form>
-                    </div>
 
-                    {/* Action Buttons */}
-                    <div className="bg-gradient-to-r from-purple-50/80 to-indigo-50/80 backdrop-blur-sm p-6 md:p-8 border-t border-purple-200/50">
-                        <div className="flex flex-col lg:flex-row justify-between gap-4">
-                            {/* Save and Cancel */}
-                            <div className="flex flex-col sm:flex-row gap-3 lg:flex-1">
+                            {/* Action Buttons */}
+                            <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 pt-4 border-t-2 border-purple-100">
                                 <button
                                     type="submit"
-                                    form="editForm"
-                                    onClick={handleSubmit}
                                     disabled={loading || deleting}
                                     className="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 tracking-wide"
                                 >
                                     {loading ? (
                                         <>
                                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            Saving...
+                                            Updating...
                                         </>
                                     ) : (
-                                        '💾 Save Changes'
+                                        <>
+                                            ✏️ Update Event
+                                        </>
                                     )}
                                 </button>
+
+                                <button
+                                    type="button"
+                                    onClick={handleToggleComplete}
+                                    disabled={loading || deleting}
+                                    className={`px-6 md:px-8 py-3 md:py-4 font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 tracking-wide ${
+                                        event.is_completed 
+                                            ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white'
+                                            : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                                    }`}
+                                >
+                                    {event.is_completed ? '↩️ Mark Incomplete' : '✅ Mark Complete'}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteClick}
+                                    disabled={loading || deleting}
+                                    className="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 tracking-wide"
+                                >
+                                    {deleting ? (
+                                        <>
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            🗑️ Delete Event
+                                        </>
+                                    )}
+                                </button>
+
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 tracking-wide"
                                     disabled={loading || deleting}
+                                    className="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 tracking-wide"
                                 >
                                     ✕ Cancel
                                 </button>
                             </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <button
-                                    type="button"
-                                    onClick={handleToggleComplete}
-                                    className={`px-6 md:px-8 py-3 md:py-4 font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none tracking-wide ${
-                                        event.is_completed 
-                                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' 
-                                            : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
-                                    }`}
-                                    disabled={loading || deleting}
-                                >
-                                    {event.is_completed ? '↩️ Mark Incomplete' : '✅ Mark Complete'}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleDeleteClick}
-                                    className="px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none tracking-wide"
-                                    disabled={loading || deleting}
-                                >
-                                    {deleting ? 'Deleting...' : '🗑️ Delete Event'}
-                                </button>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </>
-    )
+    );
 }
 
 export default EventModal;

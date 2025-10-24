@@ -3,8 +3,10 @@ import { toLetterGrade } from '../../utils/gradeUtils';
 import { dataService } from '../../services/data-service.js';
 import DeleteClassPopUp from './DeleteClassPopUp.jsx';
 import UpdateClass from './UpdateClass.jsx';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function SemesterView({ semester, classes, onClassUpdated, onClassDeleted }) {
+    const { isGuestMode, deleteGuestClass } = useGuestMode();
     const [isExpanded, setIsExpanded] = useState(true);
     const [semesterGPA, setSemesterGPA] = useState({ gpa: 0, totalCredits: 0 });
     const [updatingClass, setUpdatingClass] = useState(null);
@@ -14,15 +16,45 @@ function SemesterView({ semester, classes, onClassUpdated, onClassDeleted }) {
 
     useEffect(() => {
         loadSemesterGPA();
-    }, [semester, classes]);
+    }, [semester, classes, isGuestMode]);
 
     async function loadSemesterGPA() {
-        try {
-            const response = await dataService.getSemesterGPA(semester);
-            setSemesterGPA(response.data);
-        } catch (error) {
-            console.error('Error loading semester GPA:', error);
+        if (isGuestMode) {
+            // Calculate GPA from guest data
+            const gpa = calculateSemesterGPA(classes);
+            setSemesterGPA(gpa);
+        } else {
+            // Load from API
+            try {
+                const response = await dataService.getSemesterGPA(semester);
+                setSemesterGPA(response.data);
+            } catch (error) {
+                console.error('Error loading semester GPA:', error);
+            }
         }
+    }
+
+    function calculateSemesterGPA(classList) {
+        if (classList.length === 0) {
+            return { gpa: '0.00', totalCredits: 0 };
+        }
+
+        let totalPoints = 0;
+        let totalCredits = 0;
+
+        classList.forEach(course => {
+            const grade = parseFloat(course.grade);
+            const credits = parseInt(course.credits);
+            totalPoints += grade * credits;
+            totalCredits += credits;
+        });
+
+        const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+        
+        return {
+            gpa,
+            totalCredits
+        };
     }
 
     function handleUpdate(classItem) {
@@ -42,8 +74,15 @@ function SemesterView({ semester, classes, onClassUpdated, onClassDeleted }) {
         setDeletingClass(classToDelete.id);
 
         try {
-            await dataService.deleteClass(classToDelete.id);
-            onClassDeleted(classToDelete.id);
+            if (isGuestMode) {
+                // Delete from guest storage
+                deleteGuestClass(classToDelete.id);
+                onClassDeleted(classToDelete.id);
+            } else {
+                // Delete via API
+                await dataService.deleteClass(classToDelete.id);
+                onClassDeleted(classToDelete.id);
+            }
         } catch (error) {
             console.error('Error deleting class: ', error);
             alert('Failed to delete class');

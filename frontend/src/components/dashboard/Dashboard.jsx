@@ -6,8 +6,10 @@ import SemesterView from './SemesterView.jsx';
 import { sortSemesters } from '../../utils/semesterUtils.js';
 import Calculator from './Calculator.jsx';
 import GPAGraph from '../other/GPAGraph.jsx';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function Dashboard() {
+    const { isGuestMode, guestData } = useGuestMode();
     const [classes, setClasses] = useState([]);
     const [groupedClasses, setGroupedClasses] = useState({});
     const [gpaData, setGpaData] = useState({ gpa: 0, totalCredits: 0, totalClasses: 0});
@@ -20,26 +22,78 @@ function Dashboard() {
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [isGuestMode, guestData]);
 
     async function loadData() {
         try {
             setLoading(true);
-            const [classesResponse, gpaResponse, groupedResponse] = await Promise.all([
-                dataService.getClasses(),
-                dataService.getGPA(),
-                dataService.getClassesBySemester()
-            ]);
+            
+            if (isGuestMode) {
+                // Load data from guest storage
+                const guestClasses = guestData.classes || [];
+                setClasses(guestClasses);
+                
+                // Calculate GPA from guest data
+                const gpa = calculateGPA(guestClasses);
+                setGpaData(gpa);
+                
+                // Group classes by semester
+                const grouped = groupClassesBySemester(guestClasses);
+                setGroupedClasses(grouped);
+            } else {
+                // Load data from API
+                const [classesResponse, gpaResponse, groupedResponse] = await Promise.all([
+                    dataService.getClasses(),
+                    dataService.getGPA(),
+                    dataService.getClassesBySemester()
+                ]);
 
-            setClasses(classesResponse.data);
-            setGpaData(gpaResponse.data);
-            setGroupedClasses(groupedResponse.data);
+                setClasses(classesResponse.data);
+                setGpaData(gpaResponse.data);
+                setGroupedClasses(groupedResponse.data);
+            }
         } catch (error) {
             setError('Failed to load data');
             console.error('Error loading data: ', error);
         } finally {
             setLoading(false);
         }
+    }
+
+    function calculateGPA(classList) {
+        if (classList.length === 0) {
+            return { gpa: '0.00', totalCredits: 0, totalClasses: 0 };
+        }
+
+        let totalPoints = 0;
+        let totalCredits = 0;
+
+        classList.forEach(course => {
+            const grade = parseFloat(course.grade);
+            const credits = parseInt(course.credits);
+            totalPoints += grade * credits;
+            totalCredits += credits;
+        });
+
+        const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+        
+        return {
+            gpa,
+            totalCredits,
+            totalClasses: classList.length
+        };
+    }
+
+    function groupClassesBySemester(classList) {
+        const grouped = {};
+        classList.forEach(course => {
+            const semester = course.semester || 'Unassigned';
+            if (!grouped[semester]) {
+                grouped[semester] = [];
+            }
+            grouped[semester].push(course);
+        });
+        return grouped;
     }
 
     function handleClassAdded(newClass) {
@@ -54,7 +108,15 @@ function Dashboard() {
         }));
         
         setShowAddForm(false);
-        updateGPAOnly();
+        
+        if (isGuestMode) {
+            // Recalculate GPA for guest mode
+            const updatedClasses = [newClass, ...classes];
+            const gpa = calculateGPA(updatedClasses);
+            setGpaData(gpa);
+        } else {
+            updateGPAOnly();
+        }
     }
 
     function handleClassUpdated(updatedClass) {
@@ -84,7 +146,14 @@ function Dashboard() {
             return newGrouped;
         });
         
-        updateGPAOnly();
+        if (isGuestMode) {
+            // Recalculate GPA for guest mode
+            const updatedClasses = classes.map(c => c.id === updatedClass.id ? updatedClass : c);
+            const gpa = calculateGPA(updatedClasses);
+            setGpaData(gpa);
+        } else {
+            updateGPAOnly();
+        }
     }
 
     function handleClassDeleted(classId) {
@@ -103,7 +172,14 @@ function Dashboard() {
             return newGrouped;
         });
         
-        updateGPAOnly();
+        if (isGuestMode) {
+            // Recalculate GPA for guest mode
+            const updatedClasses = classes.filter(c => c.id !== classId);
+            const gpa = calculateGPA(updatedClasses);
+            setGpaData(gpa);
+        } else {
+            updateGPAOnly();
+        }
     }
 
     async function updateGPAOnly() {
@@ -134,6 +210,27 @@ function Dashboard() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 font-sans">
             <div className="max-w-7xl mx-auto p-6">
+                {/* Guest Mode Banner */}
+                {isGuestMode && (
+                    <div className="mb-8 bg-gradient-to-r from-yellow-100 to-amber-100 border-2 border-yellow-300 rounded-2xl p-6 shadow-lg">
+                        <div className="flex items-center gap-4">
+                            <span className="text-4xl">👤</span>
+                            <div className="flex-1">
+                                <h3 className="text-xl font-bold text-yellow-800 mb-2">Guest Mode Active</h3>
+                                <p className="text-yellow-700 font-medium">
+                                    You're using GPA Lens in guest mode. Your data will be cleared when you close your browser.
+                                </p>
+                            </div>
+                            <a 
+                                href="/register" 
+                                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 no-underline"
+                            >
+                                Sign Up to Save
+                            </a>
+                        </div>
+                    </div>
+                )}
+
                 {/* Header Section */}
                 <div className="text-center mb-8 md:mb-12">
                     {/* Responsive Header */}

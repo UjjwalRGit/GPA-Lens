@@ -1,7 +1,9 @@
 import { calendarService } from '../../services/calendar-service.js';
 import { useState } from 'react';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function EventViewModal({ event, onEdit, onEventUpdated, onEventDeleted, onClose }) {
+    const { isGuestMode, updateGuestEvent, deleteGuestEvent } = useGuestMode();
     const [loading, setLoading] = useState(false);
     const [showFullDescription, setShowFullDescription] = useState(false);
 
@@ -61,11 +63,42 @@ function EventViewModal({ event, onEdit, onEventUpdated, onEventDeleted, onClose
     async function handleToggleComplete() {
         setLoading(true);
         try {
-            await calendarService.toggleEventCompletion(event.id);
             const updatedEvent = { ...event, is_completed: !Boolean(event.is_completed) };
-            onEventUpdated(updatedEvent);
+            
+            if (isGuestMode) {
+                // Update in guest storage
+                updateGuestEvent(event.id, updatedEvent);
+                onEventUpdated(updatedEvent);
+            } else {
+                // Update via API
+                await calendarService.toggleEventCompletion(event.id);
+                onEventUpdated(updatedEvent);
+            }
         } catch (error) {
             console.error('Error toggling event completion:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleDelete() {
+        const confirmed = window.confirm('Are you sure you want to delete this event?');
+        if (!confirmed) return;
+
+        setLoading(true);
+        try {
+            if (isGuestMode) {
+                // Delete from guest storage
+                deleteGuestEvent(event.id);
+                onEventDeleted(event.id);
+            } else {
+                // Delete via API
+                await calendarService.deleteEvent(event.id);
+                onEventDeleted(event.id);
+            }
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            alert('Failed to delete event');
         } finally {
             setLoading(false);
         }
@@ -118,15 +151,15 @@ function EventViewModal({ event, onEdit, onEventUpdated, onEventDeleted, onClose
                             <p className="text-white/80 text-sm sm:text-base lg:text-lg">
                                 📅 {formatDate(event.event_date)}
                                 {event.event_time && (
-                                    <span className="ml-3">
-                                        🕒 {formatTime(event.event_time)}
+                                    <span className="ml-2 sm:ml-4">
+                                        🕐 {formatTime(event.event_time)}
                                     </span>
                                 )}
                             </p>
                         </div>
                         <button 
-                            onClick={onClose} 
-                            className="bg-white/20 backdrop-blur-sm border-0 text-white w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full text-sm sm:text-base lg:text-lg cursor-pointer transition-all duration-300 flex items-center justify-center hover:bg-white/30 hover:scale-110 flex-shrink-0 ml-4"
+                            onClick={onClose}
+                            className="ml-2 sm:ml-4 bg-white/20 backdrop-blur-sm text-white w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full text-base sm:text-lg cursor-pointer transition-all duration-300 flex items-center justify-center hover:bg-white/30 hover:scale-110 border-0 flex-shrink-0"
                         >
                             ✕
                         </button>
@@ -134,126 +167,133 @@ function EventViewModal({ event, onEdit, onEventUpdated, onEventDeleted, onClose
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10 space-y-4 sm:space-y-6">
-                    {/* Description */}
-                    {event.description && (
-                        <div className="bg-purple-50/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-200/50">
-                            <h3 className="font-bold text-purple-800 mb-3 flex items-center gap-2 text-sm sm:text-base md:text-lg lg:text-xl">
-                                📝 Description
-                            </h3>
-                            <div className="text-purple-700 leading-relaxed break-words whitespace-pre-wrap text-sm sm:text-base lg:text-lg">
-                                {showFullDescription ? (
-                                    <>
-                                        {event.description}
-                                        {event.description.length > 150 && (
-                                            <button
-                                                onClick={() => setShowFullDescription(false)}
-                                                className="block mt-3 text-blue-600 hover:text-blue-800 text-sm lg:text-base font-medium transition-colors"
-                                            >
-                                                Show less
-                                            </button>
-                                        )}
-                                    </>
-                                ) : (
-                                    <>
-                                        {truncateDescription(event.description)}
-                                        {event.description.length > 150 && (
-                                            <button
-                                                onClick={() => setShowFullDescription(true)}
-                                                className="block mt-3 text-blue-600 hover:text-blue-800 text-sm lg:text-base font-medium transition-colors"
-                                            >
-                                                Show more
-                                            </button>
-                                        )}
-                                    </>
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                    <div className="space-y-4 sm:space-y-6">
+                        {/* Description */}
+                        {event.description && (
+                            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border border-purple-200">
+                                <h3 className="text-base sm:text-lg font-bold text-purple-800 mb-3 flex items-center gap-2">
+                                    📝 Description
+                                </h3>
+                                <p className="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
+                                    {showFullDescription || event.description.length <= 150 
+                                        ? event.description 
+                                        : truncateDescription(event.description)
+                                    }
+                                </p>
+                                {event.description.length > 150 && (
+                                    <button
+                                        onClick={() => setShowFullDescription(!showFullDescription)}
+                                        className="mt-3 text-purple-600 hover:text-purple-800 font-semibold text-sm transition-colors"
+                                    >
+                                        {showFullDescription ? 'Show Less' : 'Show More'}
+                                    </button>
                                 )}
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* Event Details Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                        {/* Priority */}
-                        <div className="bg-purple-50/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-200/50">
-                            <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2 text-sm sm:text-base md:text-lg lg:text-xl">
-                                🎯 Priority
-                            </h4>
-                            <span 
-                                className="inline-block px-3 sm:px-4 lg:px-6 py-2 lg:py-3 rounded-xl text-white font-medium text-sm sm:text-base lg:text-lg"
-                                style={{ backgroundColor: getPriorityColor(event.priority) }}
-                            >
-                                {event.priority ? event.priority.charAt(0).toUpperCase() + event.priority.slice(1) : 'Medium'}
-                            </span>
-                        </div>
-
-                        {/* Reminder */}
-                        <div className="bg-purple-50/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-200/50">
-                            <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2 text-sm sm:text-base md:text-lg lg:text-xl">
-                                🔔 Reminder
-                            </h4>
-                            <p className="text-purple-700 text-sm sm:text-base lg:text-lg">
-                                {event.reminder_days && event.reminder_days > 0 
-                                    ? `${event.reminder_days} day${event.reminder_days !== 1 ? 's' : ''} before` 
-                                    : 'No reminder'
-                                }
-                            </p>
-                        </div>
-
-                        {/* Class Info (if applicable) */}
-                        {(event.class_department || event.class_id) && (
-                            <div className="bg-purple-50/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-purple-200/50 lg:col-span-2 xl:col-span-1">
-                                <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2 text-sm sm:text-base md:text-lg lg:text-xl">
-                                    🎓 Class Information
-                                </h4>
-                                <div className="flex flex-wrap gap-2 sm:gap-3">
-                                    {event.class_department && (
-                                        <span className="bg-blue-100 text-blue-800 px-3 sm:px-4 lg:px-6 py-2 lg:py-3 rounded-xl text-sm sm:text-base lg:text-lg font-medium">
-                                            {event.class_department}
-                                        </span>
-                                    )}
-                                    {event.class_id && (
-                                        <span className="bg-green-100 text-green-800 px-3 sm:px-4 lg:px-6 py-2 lg:py-3 rounded-xl text-sm sm:text-base lg:text-lg font-medium">
-                                            {event.class_id}
-                                        </span>
-                                    )}
+                        {/* Event Details Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            {/* Priority */}
+                            <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <div 
+                                        className="w-3 h-3 rounded-full"
+                                        style={{ backgroundColor: getPriorityColor(event.priority) }}
+                                    ></div>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-medium">Priority</p>
+                                        <p className="text-base sm:text-lg font-bold text-gray-800 capitalize">
+                                            {event.priority || 'Medium'}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        )}
+
+                            {/* Class Info */}
+                            {(event.class_department || event.class_id) && (
+                                <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">📚</span>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium">Class</p>
+                                            <p className="text-base sm:text-lg font-bold text-gray-800">
+                                                {event.class_department} {event.class_id}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Reminder */}
+                            {event.reminder_days !== null && event.reminder_days !== undefined && (
+                                <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">🔔</span>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium">Reminder</p>
+                                            <p className="text-base sm:text-lg font-bold text-gray-800">
+                                                {event.reminder_days} {event.reminder_days === 1 ? 'day' : 'days'} before
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Status */}
+                            <div className="bg-white rounded-xl p-4 border-2 border-gray-200 shadow-sm">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-2xl">
+                                        {Boolean(event.is_completed) ? '✅' : '⏳'}
+                                    </span>
+                                    <div>
+                                        <p className="text-xs text-gray-500 font-medium">Status</p>
+                                        <p className="text-base sm:text-lg font-bold text-gray-800">
+                                            {Boolean(event.is_completed) ? 'Completed' : 'Pending'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Fixed Action Buttons at Bottom */}
-                <div className="bg-gradient-to-r from-purple-50/80 to-indigo-50/80 backdrop-blur-sm border-t border-purple-200/50 p-4 sm:p-6 lg:p-8 rounded-b-3xl">
-                    <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 lg:gap-6">
-                        <div className="flex-1 flex flex-col sm:flex-row gap-3 lg:gap-4">
-                            <button
-                                onClick={handleToggleComplete}
-                                disabled={loading}
-                                className={`flex-1 px-6 sm:px-8 lg:px-12 py-3 sm:py-4 lg:py-5 font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none tracking-wide text-sm sm:text-base lg:text-lg ${
-                                    Boolean(event.is_completed) === true
-                                        ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' 
-                                        : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
-                                }`}
-                            >
-                                {loading ? (
-                                    <div className="flex items-center justify-center gap-2">
-                                        <div className="w-4 h-4 lg:w-5 lg:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        Updating...
-                                    </div>
-                                ) : (
-                                    <>
-                                        {Boolean(event.is_completed) === true ? '↩️ Mark Incomplete' : '✅ Mark Complete'}
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                        
+                {/* Action Buttons */}
+                <div className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         <button
                             onClick={onEdit}
                             disabled={loading}
-                            className="px-6 sm:px-8 lg:px-12 py-3 sm:py-4 lg:py-5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none tracking-wide text-sm sm:text-base lg:text-lg"
+                            className="flex-1 px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed text-sm sm:text-base"
                         >
                             ✏️ Edit Event
+                        </button>
+                        <button
+                            onClick={handleToggleComplete}
+                            disabled={loading}
+                            className={`flex-1 px-4 sm:px-6 py-3 font-bold rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed text-sm sm:text-base ${
+                                Boolean(event.is_completed)
+                                    ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white'
+                                    : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                            }`}
+                        >
+                            {loading ? (
+                                <>
+                                    <div className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                    Processing...
+                                </>
+                            ) : Boolean(event.is_completed) ? (
+                                '↩️ Mark Incomplete'
+                            ) : (
+                                '✅ Mark Complete'
+                            )}
+                        </button>
+                        <button
+                            onClick={handleDelete}
+                            disabled={loading}
+                            className="flex-1 px-4 sm:px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed text-sm sm:text-base"
+                        >
+                            🗑️ Delete
                         </button>
                     </div>
                 </div>

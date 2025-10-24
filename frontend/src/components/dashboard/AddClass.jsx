@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { dataService } from '../../services/data-service.js';
 import { toGpa, getLetterGrades } from '../../utils/gradeUtils.js';
 import { getSemesters, getCurrentSemester } from '../../utils/semesterUtils.js';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function AddClass({ onClassAdded, onCancel }) {
+    const { isGuestMode, addGuestClass } = useGuestMode();
     const [formData, setData] = useState({
         department: '',
         classId: '',
@@ -34,8 +36,18 @@ function AddClass({ onClassAdded, onCancel }) {
                 semester: formData.semester
             };
 
-            const response = await dataService.addClass(classData);
-            onClassAdded(response.data);
+            if (isGuestMode) {
+                // Add to guest storage
+                addGuestClass(classData);
+                onClassAdded({
+                    ...classData,
+                    id: Date.now().toString() // Generate ID for consistency
+                });
+            } else {
+                // Add via API
+                const response = await dataService.addClass(classData);
+                onClassAdded(response.data);
+            }
 
             setData({
                 department: '',

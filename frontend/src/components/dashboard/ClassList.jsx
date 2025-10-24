@@ -3,8 +3,10 @@ import { dataService } from '../../services/data-service.js';
 import { toLetterGrade } from '../../utils/gradeUtils.js';
 import DeleteClassPopUp from './DeleteClassPopUp.jsx';
 import UpdateClass from './UpdateClass.jsx';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function ClassList({ classes, onClassUpdated, onClassDeleted }){
+    const { isGuestMode, deleteGuestClass } = useGuestMode();
     const [updatingClass, setUpdatingClass] = useState(null);
     const [deletingClass, setDeletingClass] = useState(null);
     const [showDeleteConfirm, setShowDelete] = useState(false);
@@ -28,8 +30,15 @@ function ClassList({ classes, onClassUpdated, onClassDeleted }){
         setDeletingClass(classToDelete.id);
 
         try {
-            await dataService.deleteClass(classToDelete.id);
-            onClassDeleted(classToDelete.id);
+            if (isGuestMode) {
+                // Delete from guest storage
+                deleteGuestClass(classToDelete.id);
+                onClassDeleted(classToDelete.id);
+            } else {
+                // Delete via API
+                await dataService.deleteClass(classToDelete.id);
+                onClassDeleted(classToDelete.id);
+            }
         } catch (error) {
             console.error('Error deleting class: ', error);
             alert('Failed to delete class');
@@ -63,6 +72,13 @@ function ClassList({ classes, onClassUpdated, onClassDeleted }){
                 <p className="text-lg text-purple-600 font-medium font-sans">
                     Add your first class to get started tracking your progress!
                 </p>
+                {isGuestMode && (
+                    <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl max-w-md mx-auto">
+                        <p className="text-sm text-yellow-700">
+                            <strong>Guest Mode:</strong> Your data is temporary. Sign up to save it permanently!
+                        </p>
+                    </div>
+                )}
             </div>
         )
     }

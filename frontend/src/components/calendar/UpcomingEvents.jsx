@@ -1,16 +1,27 @@
 import { useState } from 'react';
 import { calendarService } from '../../services/calendar-service.js';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 import DeleteEventPopUp from './DeleteEventPopUp.jsx';
 
 function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }) {
+    const { isGuestMode, updateGuestEvent, deleteGuestEvent } = useGuestMode();
     const [deletingEvent, setDeletingEvent] = useState(null);
     const [showDeletePopUp, setShowDeletePopUp] = useState(false);
     const [eventToDelete, setEventToDelete] = useState(null);
 
     async function handleToggleComplete(event) {
         try {
-            const response = await calendarService.toggleEventCompletion(event.id);
-            onEventUpdated(response.data);
+            const updatedEvent = { ...event, is_completed: !event.is_completed };
+            
+            if (isGuestMode) {
+                // Update in guest storage
+                updateGuestEvent(event.id, updatedEvent);
+                onEventUpdated(updatedEvent);
+            } else {
+                // Update via API
+                const response = await calendarService.toggleEventCompletion(event.id);
+                onEventUpdated(response.data);
+            }
         } catch (error) {
             console.error('Error toggling event completion:', error);
             alert('Failed to update event');
@@ -29,8 +40,15 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
         setDeletingEvent(eventToDelete.id);
 
         try {
-            await calendarService.deleteEvent(eventToDelete.id);
-            onEventDeleted(eventToDelete.id);
+            if (isGuestMode) {
+                // Delete from guest storage
+                deleteGuestEvent(eventToDelete.id);
+                onEventDeleted(eventToDelete.id);
+            } else {
+                // Delete via API
+                await calendarService.deleteEvent(eventToDelete.id);
+                onEventDeleted(eventToDelete.id);
+            }
         } catch (error) {
             console.error('Error deleting event:', error);
             alert('Failed to delete event');
@@ -141,7 +159,7 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                     No priority events!
                 </h3>
                 <p className="text-gray-600 text-base md:text-lg">
-                    All caught up! No urgent events in the next 10 days.
+                    All clear! No urgent or high-priority events at the moment.
                 </p>
             </div>
         );
@@ -149,20 +167,12 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
 
     return (
         <div className="space-y-6 md:space-y-8">
-            <DeleteEventPopUp
-                isOpen={showDeletePopUp}
-                event={eventToDelete}
-                onConfirm={handleDeleteConfirm}
-                onCancel={handleDeleteCancel}
-                isLoading={deletingEvent === eventToDelete?.id}
-            />
-
             {/* Urgent Events Section */}
             {urgentEvents.length > 0 && (
-                <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-red-200/50 overflow-hidden">
-                    <div className="bg-gradient-to-br from-red-50 to-orange-50 p-4 md:p-8 border-b border-red-200/50">
+                <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-purple-200/50 overflow-hidden">
+                    <div className="bg-gradient-to-br from-red-50 to-orange-50 p-4 md:p-8 border-b border-purple-200/50">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
-                            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center text-white text-lg md:text-xl font-bold shadow-lg flex-shrink-0">
+                            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl flex items-center justify-center text-white text-lg md:text-xl font-bold shadow-lg flex-shrink-0 animate-pulse">
                                 🚨
                             </div>
                             <div className="flex-1 min-w-0">
@@ -170,14 +180,14 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                                     Urgent Events ({urgentEvents.length})
                                 </h3>
                                 <p className="text-red-600/80 text-xs md:text-sm font-medium">
-                                    Events due today or tomorrow
+                                    Due today or tomorrow - Immediate attention required!
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <div className="p-4 md:p-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                             {urgentEvents.map(event => {
                                 const typeGradient = getTypeGradient(event.event_type);
                                 const daysUntil = getDaysUntil(event.event_date);
@@ -185,7 +195,7 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                                 return (
                                     <div
                                         key={event.id}
-                                        className={`bg-gradient-to-br ${typeGradient} rounded-2xl p-4 md:p-6 shadow-xl border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 transform ring-2 ring-red-300`}
+                                        className={`bg-gradient-to-br ${typeGradient} rounded-2xl p-4 md:p-6 shadow-xl border-4 border-red-300/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 transform animate-pulse-slow`}
                                     >
                                         {/* Event Header */}
                                         <div className="flex justify-between items-start mb-3 md:mb-4">
@@ -206,7 +216,7 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                                                 </div>
                                             </div>
                                             <div className="text-right flex-shrink-0">
-                                                <div className="text-xs md:text-sm font-bold text-white bg-white/20 backdrop-blur-sm px-2 md:px-3 py-1 md:py-2 rounded-xl shadow-sm mb-2">
+                                                <div className="text-xs md:text-sm font-bold text-white bg-red-500/40 backdrop-blur-sm px-2 md:px-3 py-1 md:py-2 rounded-xl shadow-sm mb-2 border-2 border-white/30">
                                                     {daysUntil}
                                                 </div>
                                             </div>
@@ -317,7 +327,7 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                                                 <div className="text-xs md:text-sm font-bold text-white bg-white/20 backdrop-blur-sm px-2 md:px-3 py-1 md:py-2 rounded-xl shadow-sm mb-2">
                                                     {daysUntil}
                                                 </div>
-                            </div>
+                                            </div>
                                         </div>
 
                                         {/* Event Details */}
@@ -364,6 +374,16 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Delete Confirmation */}
+            {showDeletePopUp && eventToDelete && (
+                <DeleteEventPopUp
+                    isOpen={showDeletePopUp}
+                    event={eventToDelete}
+                    onConfirm={handleDeleteConfirm}
+                    onCancel={handleDeleteCancel}
+                />
             )}
         </div>
     );

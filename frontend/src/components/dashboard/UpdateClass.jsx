@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { dataService } from '../../services/data-service.js';
 import { toGpa, toLetterGrade, getLetterGrades } from '../../utils/gradeUtils.js';
 import { getSemesters } from '../../utils/semesterUtils.js';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function UpdateClass({ classData, onUpdate, onCancel }) {
+    const { isGuestMode, updateGuestClass } = useGuestMode();
     const [formData, setData] = useState({
         department: classData.department,
         classId: classData.classId.toString(),
@@ -34,8 +36,18 @@ function UpdateClass({ classData, onUpdate, onCancel }) {
                 semester: formData.semester
             };
 
-            const response = await dataService.updateClass(classData.id, updateData);
-            onUpdate(response.data);
+            if (isGuestMode) {
+                // Update in guest storage
+                updateGuestClass(classData.id, updateData);
+                onUpdate({
+                    ...updateData,
+                    id: classData.id
+                });
+            } else {
+                // Update via API
+                const response = await dataService.updateClass(classData.id, updateData);
+                onUpdate(response.data);
+            }
         } catch (error) {
             setError(error.response?.data?.error || 'Failed to update class');
         } finally {

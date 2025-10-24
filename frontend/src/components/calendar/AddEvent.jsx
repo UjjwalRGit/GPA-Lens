@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { calendarService } from '../../services/calendar-service.js';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function AddEvent({ selectedDate, onEventAdded, onCancel }) {
+    const { isGuestMode, addGuestEvent } = useGuestMode();
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -54,15 +56,25 @@ function AddEvent({ selectedDate, onEventAdded, onCancel }) {
                 class_department: formData.class_department || null,
                 class_id: formData.class_id ? parseInt(formData.class_id) : null,
                 priority: formData.priority,
-                reminder_days: parseInt(formData.reminder_days)
+                reminder_days: parseInt(formData.reminder_days),
+                is_completed: false
             };
 
             console.log('Sending event data: ', eventData);
 
-            const response = await calendarService.createEvent(eventData);
-            console.log('Event created: ', response.data);
-
-            onEventAdded(response.data);
+            if (isGuestMode) {
+                // Add to guest storage
+                addGuestEvent(eventData);
+                onEventAdded({
+                    ...eventData,
+                    id: Date.now().toString()
+                });
+            } else {
+                // Add via API
+                const response = await calendarService.createEvent(eventData);
+                console.log('Event created: ', response.data);
+                onEventAdded(response.data);
+            }
 
             setFormData({
                 title: '',
@@ -155,7 +167,7 @@ function AddEvent({ selectedDate, onEventAdded, onCancel }) {
                             </div>
                         </div>
 
-                        {/* Row 2: Date, Time, Priority */}
+                        {/* Row 2: Date, Time, and Priority */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                             <div className="flex flex-col">
                                 <label className="mb-2 font-bold text-purple-700 text-sm tracking-wide">

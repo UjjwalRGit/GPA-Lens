@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { LineChart, Line, YAxis, XAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { dataService } from '../../services/data-service.js';
 import { sortChronologically } from '../../utils/semesterUtils.js';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function GPAGraph({ groupedClasses }) {
+    const { isGuestMode } = useGuestMode();
     const [graphData, setGraphData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -35,6 +37,12 @@ function GPAGraph({ groupedClasses }) {
 
     useEffect(() => {
         console.log('GPAGraph received groupedClasses:', groupedClasses);
+        
+        // Skip loading if in guest mode
+        if (isGuestMode) {
+            setLoading(false);
+            return;
+        }
         
         async function loadSemesterGPAs() {
             try {
@@ -83,7 +91,7 @@ function GPAGraph({ groupedClasses }) {
             setGraphData([]);
             setLoading(false);
         }
-    }, [groupedClasses])
+    }, [groupedClasses, isGuestMode])
 
     function GPAToolTip({ active, payload, label }) {
         if (active && payload && payload.length) {
@@ -142,6 +150,97 @@ function GPAGraph({ groupedClasses }) {
         )
     }
 
+    // Guest Mode Locked State
+    if (isGuestMode) {
+        return (
+            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border-2 border-purple-200/50 p-8 md:p-12 font-sans overflow-hidden relative">
+                {/* Blurred Background Pattern */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-400 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-pink-400 rounded-full blur-3xl"></div>
+                </div>
+
+                {/* Lock Icon and Message */}
+                <div className="relative z-10 text-center py-12 md:py-16">
+                    <div className="mb-8">
+                        <div className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl">
+                            <span className="text-5xl md:text-6xl">🔒</span>
+                        </div>
+                        <h3 className="text-3xl md:text-4xl font-black text-transparent bg-gradient-to-r from-purple-700 to-pink-700 bg-clip-text mb-4">
+                            GPA Trends Locked
+                        </h3>
+                        <p className="text-lg md:text-xl text-purple-600 font-medium mb-6 max-w-2xl mx-auto">
+                            Sign up for a free account to unlock visual GPA tracking and see your academic progress over time!
+                        </p>
+                    </div>
+
+                    {/* Features List */}
+                    <div className="max-w-md mx-auto mb-8">
+                        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border-2 border-purple-200 shadow-lg">
+                            <h4 className="text-xl font-bold text-purple-700 mb-4">Unlock with Free Account:</h4>
+                            <ul className="space-y-3 text-left">
+                                <li className="flex items-start gap-3">
+                                    <span className="text-2xl">📈</span>
+                                    <span className="text-purple-700 font-medium">Visual GPA trends over semesters</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-2xl">📊</span>
+                                    <span className="text-purple-700 font-medium">Academic performance statistics</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-2xl">💾</span>
+                                    <span className="text-purple-700 font-medium">Permanent data storage</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-2xl">📅</span>
+                                    <span className="text-purple-700 font-medium">Calendar & event tracking</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <span className="text-2xl">✨</span>
+                                    <span className="text-purple-700 font-medium">And much more!</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a 
+                            href="/register" 
+                            className="px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:from-purple-700 hover:to-pink-700 flex items-center gap-3 text-lg no-underline"
+                        >
+                            ✨ Sign Up Free
+                        </a>
+                        <a 
+                            href="/login" 
+                            className="px-10 py-4 bg-white text-purple-700 border-2 border-purple-300 font-bold rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl hover:bg-purple-50 hover:border-purple-400 flex items-center gap-3 text-lg no-underline"
+                        >
+                            🔑 Login
+                        </a>
+                    </div>
+
+                    <p className="text-sm text-purple-500 mt-6 font-medium">
+                        It's completely free and takes less than a minute!
+                    </p>
+                </div>
+
+                {/* Decorative Preview (Blurred) */}
+                <div className="relative mt-8 blur-sm opacity-30 pointer-events-none">
+                    <div className="h-48 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl border-2 border-purple-200 flex items-center justify-center">
+                        <svg width="100%" height="100%" className="opacity-50">
+                            <line x1="10%" y1="70%" x2="90%" y2="30%" stroke="#8b5cf6" strokeWidth="4" strokeLinecap="round" />
+                            <circle cx="10%" cy="70%" r="8" fill="#8b5cf6" />
+                            <circle cx="30%" cy="50%" r="8" fill="#06d6a0" />
+                            <circle cx="50%" cy="45%" r="8" fill="#ffd60a" />
+                            <circle cx="70%" cy="35%" r="8" fill="#06d6a0" />
+                            <circle cx="90%" cy="30%" r="8" fill="#8b5cf6" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (loading) {
         return (
             <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border-2 border-purple-200/50 p-8 md:p-12 font-sans">
@@ -156,9 +255,9 @@ function GPAGraph({ groupedClasses }) {
     if (error) {
         return (
             <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border-2 border-red-200/50 p-8 md:p-12 font-sans">
-                <div className="bg-gradient-to-r from-red-100 to-pink-100 border-2 border-red-300 text-red-800 px-4 md:px-6 py-3 md:py-4 rounded-2xl flex items-center gap-3 md:gap-4 shadow-lg">
-                    <span className="text-xl md:text-2xl">⚠️</span>
-                    <span className="font-semibold text-sm md:text-base">{error}</span>
+                <div className="text-center text-red-600 text-lg md:text-xl">
+                    <div className="text-4xl mb-4">⚠️</div>
+                    <p className="font-semibold">{error}</p>
                 </div>
             </div>
         )
@@ -166,34 +265,32 @@ function GPAGraph({ groupedClasses }) {
 
     if (graphData.length === 0) {
         return (
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border-2 border-purple-200/50 p-12 md:p-20 text-center font-sans">
-                <div className="text-6xl md:text-8xl mb-6 md:mb-8">📊</div>
-                <p className="text-xl md:text-2xl text-purple-700 font-bold mb-3 md:mb-4">
-                    No GPA data available yet
-                </p>
-                <p className="text-base md:text-lg text-purple-600 font-medium">
-                    Add some classes to see your academic progress trends!
-                </p>
+            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border-2 border-purple-200/50 p-8 md:p-12 font-sans">
+                <div className="text-center text-purple-700 text-lg md:text-xl">
+                    <div className="text-6xl md:text-8xl mb-4">📊</div>
+                    <p className="font-bold mb-2">No GPA data available yet</p>
+                    <p className="text-base text-purple-600">Add classes to multiple semesters to see your GPA trends!</p>
+                </div>
             </div>
         )
     }
-    
+
     return (
         <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border-2 border-purple-200/50 overflow-hidden font-sans">
             {/* Header */}
-            <div className="bg-gradient-to-br from-purple-600 via-indigo-600 to-pink-600 p-4 md:p-8 text-white">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6">
+            <div className="bg-gradient-to-br from-purple-600 via-indigo-600 to-pink-600 p-6 md:p-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h3 className="text-xl md:text-3xl font-black mb-2 flex items-center gap-2 md:gap-4">
-                            📊 Your GPA Progress
+                        <h3 className="text-2xl md:text-4xl font-black text-white mb-2 md:mb-3 flex items-center gap-3 flex-wrap">
+                            📈 GPA Trends Over Time
                         </h3>
-                        <p className="text-purple-100 font-medium text-sm md:text-base">
-                            Track your academic performance across semesters
+                        <p className="text-purple-100 text-sm md:text-base font-medium">
+                            Track your academic progress across semesters
                         </p>
                     </div>
                     
-                    {/* Responsive Legend */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2 md:gap-3 text-xs md:text-sm w-full lg:w-auto">
+                    {/* Legend */}
+                    <div className="flex flex-wrap gap-2 text-xs md:text-sm">
                         <div className="flex items-center gap-1 md:gap-2 bg-white/20 backdrop-blur-sm px-2 md:px-3 py-1 md:py-2 rounded-lg md:rounded-xl border border-white/30">
                             <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-purple-400"></div>
                             <span className="text-purple-100 font-medium">4.0 Perfect</span>

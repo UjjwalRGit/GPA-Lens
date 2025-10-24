@@ -181,15 +181,15 @@ function CalendarView({ currentDate, groupedEvents, onDateClick, onEventClick, o
                                             e.stopPropagation();
                                             onEventClick(event);
                                         }}
-                                        title={`${event.event_name} - ${event.event_type}`}
+                                        title={`${event.event_name || event.title} - ${event.event_type}`}
                                     >
                                         <span className="text-xs hidden sm:inline">
                                             {getPriorityIcon(event.priority)}
                                         </span>
                                         <span className="flex-1 truncate font-medium text-xs">
-                                            {event.event_name.length > truncateLength ?
-                                                event.event_name.substring(0, truncateLength) + '...'
-                                                : event.event_name
+                                            {(event.event_name || event.title).length > truncateLength ?
+                                                (event.event_name || event.title).substring(0, truncateLength) + '...'
+                                                : (event.event_name || event.title)
                                             }
                                         </span>
                                         {Boolean(event.is_completed) && (

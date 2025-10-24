@@ -4,11 +4,13 @@ import authUtils from '../../utils/auth.js';
 import EmailPreferences from '../settings/EmailPreferences.jsx';
 import DeleteAccount from '../settings/DeleteAccount.jsx';
 import AccountSettings from '../settings/AccountSettings.jsx';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function Header() {
     const navigate = useNavigate();
     const location = useLocation();
     const isAuthenticated = authUtils.isAuthenticated();
+    const { isGuestMode, exitGuestMode } = useGuestMode();
     const user = authUtils.getCurrentUser();
     const [showMenu, setShowMenu] = useState(false);
     const [showEmailPreferences, setShowPreferences] = useState(false);
@@ -16,7 +18,11 @@ function Header() {
     const [showAccountSettings, setShowAccountSettings] = useState(false);
 
     function handleLogout() {
-        authUtils.logout();
+        if (isGuestMode) {
+            exitGuestMode();
+        } else {
+            authUtils.logout();
+        }
         navigate('/login');
         setShowMenu(false);
     }
@@ -44,6 +50,9 @@ function Header() {
         setShowMenu(false);
     }
 
+    const isLoggedIn = isAuthenticated || isGuestMode;
+    const displayName = isGuestMode ? 'Guest' : user?.username;
+
     return (
         <>
             <header className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 text-white py-6 shadow-2xl sticky top-0 z-50 backdrop-blur-sm border-b border-purple-500/20">
@@ -60,7 +69,7 @@ function Header() {
                     </Link>
 
                     <nav className="flex items-center">
-                        {isAuthenticated ? (
+                        {isLoggedIn ? (
                             <div className="flex items-center gap-6 relative">
                                 {/* Desktop Navigation */}
                                 <div className="hidden md:flex items-center gap-2">
@@ -89,9 +98,14 @@ function Header() {
                                 {/* Welcome Message */}
                                 <span className="hidden lg:flex text-purple-200 font-medium items-center gap-2 bg-purple-800/30 px-4 py-2 rounded-lg border border-purple-500/30 font-sans">
                                     <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                        {user?.username?.charAt(0)?.toUpperCase() || '👤'}
+                                        {isGuestMode ? '👤' : displayName?.charAt(0)?.toUpperCase() || '👤'}
                                     </div>
-                                    Welcome, <span className="text-purple-100 font-semibold">{user?.username}</span>!
+                                    Welcome, <span className="text-purple-100 font-semibold">{displayName}</span>!
+                                    {isGuestMode && (
+                                        <span className="ml-1 text-xs bg-yellow-500/20 text-yellow-200 px-2 py-0.5 rounded-full border border-yellow-400/30">
+                                            Guest Mode
+                                        </span>
+                                    )}
                                 </span>
 
                                 {/* Profile Menu Button */}
@@ -101,9 +115,11 @@ function Header() {
                                         className="flex items-center gap-2 bg-purple-700/50 hover:bg-purple-600/60 px-4 py-3 rounded-xl transition-all duration-300 font-semibold border border-purple-500/40 hover:border-purple-400/60 hover:shadow-lg hover:shadow-purple-500/25 font-sans"
                                     >
                                         <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                            {user?.username?.charAt(0)?.toUpperCase() || '⚙️'}
+                                            {isGuestMode ? '👤' : displayName?.charAt(0)?.toUpperCase() || '⚙️'}
                                         </div>
-                                        <span className="hidden sm:block text-purple-100">Settings</span>
+                                        <span className="hidden sm:block text-purple-100">
+                                            {isGuestMode ? 'Guest' : 'Settings'}
+                                        </span>
                                         <svg className={`w-4 h-4 text-purple-200 transition-transform duration-200 ${showMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
@@ -112,6 +128,19 @@ function Header() {
                                     {/* Dropdown Menu */}
                                     {showMenu && (
                                         <div className="absolute right-0 mt-3 w-64 bg-purple-900/95 backdrop-blur-lg border border-purple-500/30 rounded-xl shadow-2xl shadow-purple-900/50 py-2 z-50">
+                                            {/* Guest Mode Badge */}
+                                            {isGuestMode && (
+                                                <div className="px-4 py-2 mb-2 border-b border-purple-500/30">
+                                                    <div className="flex items-center gap-2 text-yellow-200 text-sm">
+                                                        <span className="text-lg">ℹ️</span>
+                                                        <div>
+                                                            <div className="font-semibold">Guest Mode Active</div>
+                                                            <div className="text-xs text-purple-300">Data will be cleared on exit</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Mobile Navigation Links */}
                                             <div className="md:hidden border-b border-purple-500/30 pb-2 mb-2">
                                                 <Link
@@ -136,28 +165,44 @@ function Header() {
                                                 </Link>
                                             </div>
 
-                                            {/* Settings Options */}
-                                            <button
-                                                onClick={handleAccountSettingsClick}
-                                                className="flex items-center gap-3 px-4 py-3 text-purple-100 hover:bg-purple-700/40 hover:text-white transition-all duration-200 w-full text-left font-medium font-sans"
-                                            >
-                                                <span className="text-lg">⚙️</span>
-                                                Account Settings
-                                            </button>
-                                            <button
-                                                onClick={handleSettingsClick}
-                                                className="flex items-center gap-3 px-4 py-3 text-purple-100 hover:bg-purple-700/40 hover:text-white transition-all duration-200 w-full text-left font-medium font-sans"
-                                            >
-                                                <span className="text-lg">📧</span>
-                                                Email Preferences
-                                            </button>
-                                            <button
-                                                onClick={handleDeleteAccountClick}
-                                                className="flex items-center gap-3 px-4 py-3 text-red-300 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200 w-full text-left font-medium font-sans"
-                                            >
-                                                <span className="text-lg">🗑️</span>
-                                                Delete Account
-                                            </button>
+                                            {/* Settings Options - Only show for authenticated users */}
+                                            {!isGuestMode && (
+                                                <>
+                                                    <button
+                                                        onClick={handleAccountSettingsClick}
+                                                        className="flex items-center gap-3 px-4 py-3 text-purple-100 hover:bg-purple-700/40 hover:text-white transition-all duration-200 w-full text-left font-medium font-sans"
+                                                    >
+                                                        <span className="text-lg">⚙️</span>
+                                                        Account Settings
+                                                    </button>
+                                                    <button
+                                                        onClick={handleSettingsClick}
+                                                        className="flex items-center gap-3 px-4 py-3 text-purple-100 hover:bg-purple-700/40 hover:text-white transition-all duration-200 w-full text-left font-medium font-sans"
+                                                    >
+                                                        <span className="text-lg">🔧</span>
+                                                        Email Preferences
+                                                    </button>
+                                                    <button
+                                                        onClick={handleDeleteAccountClick}
+                                                        className="flex items-center gap-3 px-4 py-3 text-red-300 hover:bg-red-900/40 hover:text-red-200 transition-all duration-200 w-full text-left font-medium font-sans"
+                                                    >
+                                                        <span className="text-lg">🗑️</span>
+                                                        Delete Account
+                                                    </button>
+                                                </>
+                                            )}
+                                            
+                                            {/* Sign Up Option for Guest Mode */}
+                                            {isGuestMode && (
+                                                <Link
+                                                    to='/register'
+                                                    onClick={() => setShowMenu(false)}
+                                                    className="flex items-center gap-3 px-4 py-3 text-green-300 hover:bg-green-900/40 hover:text-green-200 transition-all duration-200 w-full text-left font-medium font-sans no-underline"
+                                                >
+                                                    <span className="text-lg">✨</span>
+                                                    Sign Up to Save Data
+                                                </Link>
+                                            )}
                                             
                                             <div className="border-t border-purple-500/30 mt-2 pt-2">
                                                 <button
@@ -165,7 +210,7 @@ function Header() {
                                                     className="flex items-center gap-3 px-4 py-3 text-purple-200 hover:bg-purple-700/40 hover:text-white transition-all duration-200 w-full text-left font-medium font-sans"
                                                 >
                                                     <span className="text-lg">🚪</span>
-                                                    Logout
+                                                    {isGuestMode ? 'Exit Guest Mode' : 'Logout'}
                                                 </button>
                                             </div>
                                         </div>
@@ -200,17 +245,21 @@ function Header() {
                 </div>
             </header>
 
-            {/* Modal Components - Now outside the header */}
-            {showAccountSettings && (
-                <AccountSettings onClose={() => setShowAccountSettings(false)} />
-            )}
+            {/* Modal Components - Now outside the header - Only show for authenticated users */}
+            {!isGuestMode && (
+                <>
+                    {showAccountSettings && (
+                        <AccountSettings onClose={() => setShowAccountSettings(false)} />
+                    )}
 
-            {showEmailPreferences && (
-                <EmailPreferences onClose={() => setShowPreferences(false)} />
-            )}
+                    {showEmailPreferences && (
+                        <EmailPreferences onClose={() => setShowPreferences(false)} />
+                    )}
 
-            {showDeleteAccount && (
-                <DeleteAccount onClose={() => setShowDelete(false)} />
+                    {showDeleteAccount && (
+                        <DeleteAccount onClose={() => setShowDelete(false)} />
+                    )}
+                </>
             )}
         </>
     )

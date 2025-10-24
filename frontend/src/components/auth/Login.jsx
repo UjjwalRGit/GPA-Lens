@@ -1,9 +1,10 @@
-// Updated Login.jsx
+// Updated Login.jsx with Guest Mode
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth-service.js';
 import authUtils from '../../utils/auth.js';
 import GoogleSignIn from './GoogleSignIn.jsx';
+import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function Login() {
     const [formData, setData] = useState({
@@ -13,6 +14,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { enableGuestMode, isGuestMode } = useGuestMode();
 
     function handleChange(e) {
         setData({...formData, [e.target.name]: e.target.value});
@@ -36,7 +38,12 @@ function Login() {
         }
     }
 
-    if (authUtils.isAuthenticated()) {
+    function handleGuestMode() {
+        enableGuestMode();
+        navigate('/dashboard');
+    }
+
+    if (authUtils.isAuthenticated() || isGuestMode) {
         navigate('/dashboard');
         return null;
     }
@@ -121,6 +128,22 @@ function Login() {
                             '🚀 Login'
                         )}
                     </button>
+
+                    {/* Guest Mode Button */}
+                    <button 
+                        type="button"
+                        onClick={handleGuestMode}
+                        disabled={loading}
+                        className="w-full py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 font-bold rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:from-gray-200 hover:to-gray-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 text-lg border-2 border-gray-300"
+                    >
+                        👤 Continue as Guest
+                    </button>
+
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                        <p className="text-xs text-blue-700 text-center">
+                            <strong>Guest Mode:</strong> Try the app without signing up! Your data will be cleared when you close your browser.
+                        </p>
+                    </div>
 
                     <p className="text-center mt-8 text-purple-700">
                         Don't have an account?{' '}
