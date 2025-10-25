@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth-service.js';
 import authUtils from '../../utils/auth.js';
-import GoogleSignIn from './GoogleSignIn.jsx';
 import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function Login() {
@@ -155,14 +154,6 @@ function Login() {
                         </Link>
                     </p>
                 </form>
-
-                {/* Google Sign-In */}
-                <div className="mt-10">
-                    <GoogleSignIn 
-                        onError={setError}
-                        onLoading={setLoading}
-                    />
-                </div>
             </div>
         </div>
     )

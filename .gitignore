@@ -30,3 +30,6 @@ tmp/
 backend/serverBackup.js
 backend/serverOld.js
 
+#Removing Google OAuth Files
+frontend/src/services/google-auth-service.js
+frontend/src/components/auth/GoogleSignIn.jsx
