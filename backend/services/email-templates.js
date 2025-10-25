@@ -62,51 +62,8 @@ const welcomeEmailTemplate = (dashURL, username) => `
     </div>
 `;
 
-// 2. GOOGLE SIGN-UP WELCOME EMAIL
-const googleWelcomeEmailTemplate = (dashURL, username) => `
-    <div style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #e0e7ff 100%); border-radius: 16px; overflow: hidden;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #7c2d92 0%, #db2777 50%, #4338ca 100%); color: white; padding: 40px 30px; text-align: center;">
-            <h1 style="margin: 0 0 10px 0; font-size: 32px; font-weight: 900;">
-                📊 Welcome to GPA Lens, ${username}!
-            </h1>
-            <p style="margin: 0; font-size: 18px; opacity: 0.9; font-weight: 500;">
-                You've successfully signed up with Google! 🎉
-            </p>
-        </div>
-        
-        <!-- Content -->
-        <div style="background: rgba(255,255,255,0.95); padding: 40px 30px;">
-            <p style="color: #7c2d92; margin: 0 0 25px 0; line-height: 1.6; font-size: 16px;">
-                Your account has been created and you're ready to start tracking your grades and managing your academic calendar.
-            </p>
-            
-            <!-- CTA Button -->
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="${dashURL}" style="display: inline-block; background: linear-gradient(135deg, #7c2d92 0%, #4338ca 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 16px; box-shadow: 0 8px 25px rgba(124,45,146,0.3);">
-                    🚀 Get Started!
-                </a>
-            </div>
-            
-            <hr style="border: none; height: 2px; background: linear-gradient(135deg, #7c2d92 0%, #db2777 50%, #4338ca 100%); margin: 30px 0;">
-            
-            <div style="background: rgba(124,45,146,0.05); padding: 20px; border-radius: 8px;">
-                <p style="margin: 0; color: #7c2d92; font-size: 14px; line-height: 1.5;">
-                    <strong>Note:</strong> To change your username or email later, you'll need to create a password in your account settings.
-                </p>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-        <div style="background: rgba(124,45,146,0.1); padding: 20px 30px; text-align: center;">
-            <p style="margin: 0; color: #7c2d92; font-size: 14px;">
-                © ${new Date().getFullYear()} GPA Lens - Your academic success companion
-            </p>
-        </div>
-    </div>
-`;
 
-// 3. FORGOT PASSWORD EMAIL TEMPLATE
+// 2. FORGOT PASSWORD EMAIL TEMPLATE
 const forgotPasswordEmailTemplate = (resetURL, username) => `
     <div style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #e0e7ff 100%); border-radius: 16px; overflow: hidden;">
         <!-- Header -->
@@ -162,7 +119,7 @@ const forgotPasswordEmailTemplate = (resetURL, username) => `
     </div>
 `;
 
-// 4. EMAIL CHANGE CONFIRMATION TEMPLATES
+// 3. EMAIL CHANGE CONFIRMATION TEMPLATES
 const emailChangeOldEmailTemplate = (username, newEmail) => `
     <div style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #e0e7ff 100%); border-radius: 16px; overflow: hidden;">
         <!-- Header -->
@@ -228,7 +185,7 @@ const emailChangeNewEmailTemplate = (username) => `
     </div>
 `;
 
-// 5. DAILY DIGEST EMAIL TEMPLATE
+// 4. DAILY DIGEST EMAIL TEMPLATE
 function dailyDigestEmailTemplate(username, upcomingEvents, dashboardURL){
     const eventsList = upcomingEvents.map(event => {
         const eventDate = new Date(event.event_date);
@@ -306,7 +263,7 @@ function dailyDigestEmailTemplate(username, upcomingEvents, dashboardURL){
     `;
 };
 
-// 6. EVENT REMINDER EMAIL TEMPLATE
+// 5. EVENT REMINDER EMAIL TEMPLATE
 function eventReminderEmailTemplate(username, event, daysUntil, dashboardURL) {
     const eventDate = new Date(event.event_date);
     const typeEmoji = {
@@ -392,6 +349,7 @@ function eventReminderEmailTemplate(username, event, daysUntil, dashboardURL) {
     `;
 }
 
+// 6. ACCOUNT DELETION TEMPLATE
 const accountDeletionEmailTemplate = (username) => `
     <div style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #e0e7ff 100%); border-radius: 16px; overflow: hidden;">
         <!-- Header -->
@@ -459,82 +417,14 @@ const accountDeletionEmailTemplate = (username) => `
     </div>
 `;
 
-const passwordCreationEmailTemplate = (username) => `
-    <div style="font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #e0e7ff 100%); border-radius: 16px; overflow: hidden;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #7c2d92 0%, #db2777 50%, #4338ca 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 16px 16px 0 0;">
-            <h1 style="margin: 0 0 10px 0; font-size: 32px; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                🔐 Password Created!
-            </h1>
-            <p style="margin: 0; font-size: 18px; opacity: 0.9; font-weight: 500;">
-                Your account is now more secure
-            </p>
-        </div>
-        
-        <!-- Content -->
-        <div style="background: rgba(255,255,255,0.95); padding: 40px 30px; backdrop-filter: blur(10px); border: 2px solid rgba(124,45,146,0.1);">
-            <p style="font-size: 18px; color: #6b21a8; margin: 0 0 25px 0; font-weight: 600;">
-                Hi <strong>${username}</strong>! 🎉
-            </p>
-            
-            <p style="color: #7c2d92; margin: 0 0 25px 0; line-height: 1.6; font-size: 16px;">
-                You have successfully created a password for your GPA Lens account. Your account security has been enhanced!
-            </p>
-            
-            <!-- Features Section -->
-            <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 25px; border-radius: 12px; border: 2px solid rgba(124,45,146,0.2); margin: 25px 0;">
-                <h2 style="margin: 0 0 20px 0; color: #7c2d92; font-size: 20px; font-weight: 800;">
-                    🚀 You can now:
-                </h2>
-                
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-size: 24px;">✅</span>
-                        <span style="color: #6b21a8; font-weight: 600; font-size: 16px;">Change your username and email address</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-size: 24px;">✅</span>
-                        <span style="color: #6b21a8; font-weight: 600; font-size: 16px;">Use either Google Sign-In or email/password to log in</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-size: 24px;">✅</span>
-                        <span style="color: #6b21a8; font-weight: 600; font-size: 16px;">Update your account information securely</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <span style="font-size: 24px;">✅</span>
-                        <span style="color: #6b21a8; font-weight: 600; font-size: 16px;">Access advanced account security features</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border: 2px solid rgba(245,158,11,0.3);">
-                <p style="margin: 0; color: #92400e; font-size: 16px; font-weight: 600;">
-                    🔒 <strong>Security Note:</strong> Your password will be required to confirm future account changes for enhanced security.
-                </p>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-        <div style="background: rgba(124,45,146,0.1); padding: 20px 30px; text-align: center;">
-            <p style="margin: 0; color: #7c2d92; font-size: 14px;">
-                © ${new Date().getFullYear()} GPA Lens - Your academic success companion
-            </p>
-        </div>
-    </div>
-`;
-
-
-
 export const EmailTemplates = {
     welcomeEmailTemplate,
-    googleWelcomeEmailTemplate, 
     forgotPasswordEmailTemplate,
     emailChangeOldEmailTemplate,
     emailChangeNewEmailTemplate,
     dailyDigestEmailTemplate,
     eventReminderEmailTemplate,
     accountDeletionEmailTemplate,
-    passwordCreationEmailTemplate
 }
 
 export default EmailTemplates;
