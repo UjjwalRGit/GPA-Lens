@@ -31,10 +31,10 @@ function Header() {
         setShowMenu(!showMenu);
     }
 
-    function handleAccountSettingsClick() {
-        setShowAccountSettings(true);
-        setShowMenu(false);
-    }
+    // function handleAccountSettingsClick() {
+    //     setShowAccountSettings(true);
+    //     setShowMenu(false);
+    // }
 
     function handleSettingsClick() {
         setShowPreferences(true);
