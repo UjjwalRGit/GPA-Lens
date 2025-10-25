@@ -205,7 +205,7 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                                                 </span>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="font-bold text-white text-sm md:text-lg leading-tight drop-shadow-sm break-words">
-                                                        {event.title || event.event_name}
+                                                        {event.event_name}
                                                     </h4>
                                                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-2">
                                                         <span className="text-xs px-2 md:px-3 py-1 rounded-xl bg-white/20 backdrop-blur-sm text-white font-semibold capitalize">
@@ -313,7 +313,7 @@ function UpcomingEvents({ events, onEventClick, onEventUpdated, onEventDeleted }
                                                 </span>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="font-bold text-white text-sm md:text-lg leading-tight drop-shadow-sm break-words">
-                                                        {event.title || event.event_name}
+                                                        {event.event_name}
                                                     </h4>
                                                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-2">
                                                         <span className="text-xs px-2 md:px-3 py-1 rounded-xl bg-white/20 backdrop-blur-sm text-white font-semibold capitalize">
