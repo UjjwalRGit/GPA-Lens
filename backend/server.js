@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
+import { OAuth2Client } from 'google-auth-library';
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -28,6 +29,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(requestLogger);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 
@@ -49,9 +51,12 @@ async function initDatabase() {
             calendar_name VARCHAR(255) UNIQUE NOT NULL,
             email_reminders BOOLEAN DEFAULT TRUE,
             daily_digest BOOLEAN DEFAULT TRUE,
+            google_id VARCHAR(255) UNIQUE,
+            has_password BOOLEAN DEFAULT TRUE,
             username_last_changed TIMESTAMP NULL,
             email_last_changed TIMESTAMP NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`;
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_google_id (google_id))`;
 
     await logQuery(database.execute.bind(database), sql, [], 'Initialize users table');
 
@@ -161,8 +166,6 @@ async function initDatabase() {
     //Add account settings columns
     //await runAccountSettingsMigration();
 
-    //Remove Google OAuth
-    await removeGoogleOAuthColumns();
     await reminderScheduler.intialize(database);
 
 
@@ -171,8 +174,8 @@ async function initDatabase() {
   } catch (error) {
     logger.error('Database connection failed', {
         error: error.message,
-        host: process.env.DB_HOST,
-        database: process.env.DB_NAME
+        host: dbConfig.host,
+        database: dbConfig.database
     });
     process.exit(1);
   }
@@ -207,54 +210,6 @@ const authenticateToken = (request, response, next) => {
             next();
         }
     })
-}
-
-//Function to remove the Google OAuth columns in database
-async function removeGoogleOAuthColumns() {
-    try {
-        // Drop index
-        try {
-            await logQuery(database.execute.bind(database),
-                `DROP INDEX idx_google_id ON users`,
-                [], 'Drop Google ID index');
-            logger.info('Dropped idx_google_id index from users table');
-        } catch (error) {
-            if (!error.message.includes("Can't DROP")) {
-                logger.warn('Error dropping Google ID index', { error: error.message });
-            }
-        }
-
-        // Drop google_id column
-        try {
-            await logQuery(database.execute.bind(database),
-                `ALTER TABLE users DROP COLUMN google_id`,
-                [], 'Drop google_id column');
-            logger.info('Dropped google_id column from users table');
-        } catch (error) {
-            if (!error.message.includes("Can't DROP")) {
-                logger.warn('Error dropping google_id column', { error: error.message });
-            }
-        }
-
-        // Drop has_password column
-        try {
-            await logQuery(database.execute.bind(database),
-                `ALTER TABLE users DROP COLUMN has_password`,
-                [], 'Drop has_password column');
-            logger.info('Dropped has_password column from users table');
-        } catch (error) {
-            if (!error.message.includes("Can't DROP")) {
-                logger.warn('Error dropping has_password column', { error: error.message });
-            }
-        }
-
-        logger.info('Google OAuth columns removal completed');
-    } catch (error) {
-        logger.error('Failed to remove Google OAuth columns', {
-            error: error.message,
-            stack: error.stack
-        });
-    }
 }
 
 // async function runAccountSettingsMigration() {
@@ -374,6 +329,42 @@ async function createUserCalendar(calendarName) {
     logger.info('User calendar table created', { calendarName });
 }
 
+//Google OAUTH Functions
+function generateUsernameFromEmail(email) {
+    let username = email.split('@')[0]; //get the email handle
+    username = username.replace(/[^a-zA-Z0-9_]/g, '');
+
+    if (!/^[a-zA-Z]/.test(username)) {
+        username = 'user_' + username;
+    }
+
+    return username.substring(0, 20); //have username be only 20 chars at max
+}
+
+async function ensureUsernameIsUnique(baseUsername) {
+    let username = baseUsername;
+    let counter = 0;
+
+    while (true) {
+        const [existingUsers] = await logQuery(database.execute.bind(database), 
+            `SELECT id FROM users WHERE username = ?`,
+            [username], 'Check username uniqueness');
+        
+        if (existingUsers.length === 0) {
+            return username;
+        }
+
+        username = `${baseUsername}${counter}`;
+        counter++;
+
+        if (counter > 100) {
+            username = `${baseUsername}_${Date.now()}`;
+            break;
+        }
+    }
+
+    return username;
+}
 
 //Account Settings Helper Functions
 //Helper function to check cooldown
@@ -745,6 +736,79 @@ app.put('/api/user/password', authenticateToken, async (request, response) => {
         response.status(500).json({ error: 'Failed to update password' });
     }
 });
+
+//POST create password for Google users
+app.post('/api/user/create-password', authenticateToken, async (request, response) => {
+    try {
+        const { userId, username } = request.user;
+        const { password } = request.body;
+
+        if (!password) {
+            return response.status(400).json({ error: 'Password is required' });
+        }
+
+        if (password.length < 8) {
+            return response.status(400).json({ error: 'Password must be at least 8 characters long' });
+        }
+
+        //Get user data
+        const [users] = await logQuery(database.execute.bind(database),
+            'SELECT * FROM users WHERE id = ?',
+            [userId], 'Get user for password creation');
+
+        if (users.length === 0) {
+            return response.status(404).json({ error: 'User not found' });
+        }
+
+        const user = users[0];
+
+        //Check if user already has a password
+        if (user.has_password) {
+            return response.status(400).json({ error: 'You already have a password. Use the change password feature instead.' });
+        }
+
+        //Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        //Update user with new password
+        await logQuery(database.execute.bind(database),
+            'UPDATE users SET pass = ?, has_password = TRUE WHERE id = ?',
+            [hashedPassword, userId], 'Create password for Google user');
+
+        logger.info('Password created for Google user', {
+            userId,
+            username
+        });
+
+        response.json({
+            message: 'Password created successfully',
+            hasPassword: true
+        });
+
+        //Send confirmation email
+        try {
+            const passwordCreationEmail = {
+            from: `"GPA Lens" <${process.env.EMAIL}>`,
+            to: user.email,
+            subject: 'Password Created - Enhanced Security! 🔐',
+            html: EmailTemplates.passwordCreationEmailTemplate(username)
+        };
+
+            emailService.sendEmail(user.email, username, passwordCreationEmail)
+                .then(() => logger.info('Password creation confirmation queued.', { userId }))
+                .catch(err => logger.warn('Failed to send password creation confirmation', { userId, error: err.message }));
+        } catch (emailError) {
+            logger.warn('Error queuing password creation email', { userId, error: emailError.message });
+        }
+
+    } catch (error) {
+        logger.error('Create password error', {
+            userId: request.user?.userId,
+            error: error.message
+        });
+        response.status(500).json({ error: 'Failed to create password' });
+    }
+})
 
 //GET check username availability
 app.get('/api/user/check-username/:username', authenticateToken, async (request, response) => {
@@ -1919,6 +1983,137 @@ app.patch('/api/calendar/:id/complete', authenticateToken, async (request, respo
             error: error.message
         });
         response.status(500).json({ error: 'Failed to update event completion status' });
+    }
+})
+
+
+app.post('/api/auth/google', async (request, response) => {
+    try {
+        const { credential } = request.body;
+
+        logger.info('Google authentication attempt');
+
+        if (!credential) {
+            logger.warn('Google auth failure: no credential provided');
+            return response.status(400).json({ error: 'Google credential required' });
+        }
+
+        //Verify the Google Token
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+        const { email, name, sub: googleId, email_verified } = payload;
+
+        if (!email_verified) {
+            logger.warn('Google auth failure: email not verified', { email });
+            return response.status(400).json({ error: 'Google email not verified' });
+        }
+
+        logger.info('Google token verified', { email, name });
+
+        //check user existence
+        const [existingUsers] = await logQuery(database.execute.bind(database), 
+            'SELECT * FROM users WHERE email = ? OR google_id = ?',
+            [email, googleId], 'Check for existing user by email or Google ID');
+
+        let user;
+
+        if (existingUsers.length > 0) {
+            //User exists, update Google ID if not set
+            user = existingUsers[0];
+
+            if (!user.google_id) {
+                await logQuery(database.execute.bind(database), 
+                    'UPDATE users SET google_id = ? WHERE id = ?',
+                    [googleId, user.id], 'Update user with Google ID');
+                user.google_id = googleId;
+            }
+
+            logger.info('Existing Google user logged in', {
+                userId: user.id,
+                username: user.username,
+                email: user.email
+            });
+        } else {
+            //Create new user
+            const base = generateUsernameFromEmail(email);
+            const username = await ensureUsernameIsUnique(base);
+            const tableName = generateTableName(username);
+            const calendarName = generateCalendarName(username);
+
+            //Updated INSERT query with has_password = FALSE for new Google users
+            const [createResult] = await logQuery(database.execute.bind(database),
+                `INSERT INTO users (username, email, pass, table_name, calendar_name, 
+                 google_id, email_reminders, daily_digest, has_password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                [username, email, 'google_auth', tableName, calendarName, googleId, true, true, false], 
+                'Create new Google user');
+
+            await createUserTable(tableName);
+            await createUserCalendar(calendarName);
+
+            const [newUsers] = await logQuery(database.execute.bind(database), 
+                'SELECT * FROM users WHERE id = ?', 
+                [createResult.insertId], 'Get newly created Google user');
+
+            user = newUsers[0];
+
+            const dashURL = `${process.env.FRONTEND_URL}/dashboard`;
+            const emailFormat = {
+                from: process.env.EMAIL,
+                to: email,
+                subject: 'Welcome to GPA Lens!',
+                html: EmailTemplates.googleWelcomeEmailTemplate(dashURL, username)
+            };
+
+            emailService.sendEmail(email, username, emailFormat)
+                .then(() => logger.info('Google welcome email queued.', { username }))
+                .catch(err => logger.warn('Failed to send Google welcome email', { username, error: err.message }));
+
+            logger.info('New Google user created', {
+                userId: user.id,
+                username: username,
+                email: user.email
+            });
+        }
+
+        //generate JWT token
+        const token = jwt.sign(
+            {
+                userId: user.id,
+                username: user.username,
+                tableName: user.table_name,
+                calendarName: user.calendar_name
+            },
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: '24h' }
+        );
+
+        response.json({
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                email_reminders: user.email_reminders,
+                daily_digest: user.daily_digest,
+                isGoogleUser: true,
+                hasPassword: Boolean(user.has_password)
+            }
+        });
+    } catch (error) {
+        logger.error('Google authentication error', {
+            error: error.message,
+            stack: error.stack
+        });
+
+        if (error.message.includes('Token used too late')) {
+            return response.status(400).json({ error: 'Google token expired. Please try again.' });
+        }
+
+        response.status(500).json({ error: 'Google authentication failed' });
     }
 })
 
