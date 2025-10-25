@@ -3,7 +3,7 @@ import { useState } from 'react';
 import authUtils from '../../utils/auth.js';
 import EmailPreferences from '../settings/EmailPreferences.jsx';
 import DeleteAccount from '../settings/DeleteAccount.jsx';
-import AccountSettings from '../settings/AccountSettings.jsx';
+//import AccountSettings from '../settings/AccountSettings.jsx';
 import { useGuestMode } from '../../contexts/GuestModeContext.jsx';
 
 function Header() {
@@ -15,7 +15,7 @@ function Header() {
     const [showMenu, setShowMenu] = useState(false);
     const [showEmailPreferences, setShowPreferences] = useState(false);
     const [showDeleteAccount, setShowDelete] = useState(false);
-    const [showAccountSettings, setShowAccountSettings] = useState(false);
+    //const [showAccountSettings, setShowAccountSettings] = useState(false);
 
     function handleLogout() {
         if (isGuestMode) {
@@ -168,13 +168,13 @@ function Header() {
                                             {/* Settings Options - Only show for authenticated users */}
                                             {!isGuestMode && (
                                                 <>
-                                                    <button
+                                                    {/* <button
                                                         onClick={handleAccountSettingsClick}
                                                         className="flex items-center gap-3 px-4 py-3 text-purple-100 hover:bg-purple-700/40 hover:text-white transition-all duration-200 w-full text-left font-medium font-sans"
                                                     >
                                                         <span className="text-lg">⚙️</span>
                                                         Account Settings
-                                                    </button>
+                                                    </button> */}
                                                     <button
                                                         onClick={handleSettingsClick}
                                                         className="flex items-center gap-3 px-4 py-3 text-purple-100 hover:bg-purple-700/40 hover:text-white transition-all duration-200 w-full text-left font-medium font-sans"
@@ -248,9 +248,9 @@ function Header() {
             {/* Modal Components - Now outside the header - Only show for authenticated users */}
             {!isGuestMode && (
                 <>
-                    {showAccountSettings && (
+                    {/* {showAccountSettings && (
                         <AccountSettings onClose={() => setShowAccountSettings(false)} />
-                    )}
+                    )} */}
 
                     {showEmailPreferences && (
                         <EmailPreferences onClose={() => setShowPreferences(false)} />
