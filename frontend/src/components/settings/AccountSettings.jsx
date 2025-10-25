@@ -34,14 +34,6 @@ function AccountSettings({ onClose }) {
         success: ''
     });
 
-    const [createPasswordForm, setCreatePasswordForm] = useState({
-        password: '',
-        confirmPassword: '',
-        loading: false,
-        error: '',
-        success: ''
-    });
-
     const [usernameAvailable, setUsernameAvailable] = useState(null);
     const [emailAvailable, setEmailAvailable] = useState(null);
     const [checkingAvailability, setCheckingAvailability] = useState(false);
@@ -204,107 +196,8 @@ function AccountSettings({ onClose }) {
         }
     }
 
-    async function handleCreatePassword(e) {
-        e.preventDefault();
-        
-        if (createPasswordForm.password !== createPasswordForm.confirmPassword) {
-            setCreatePasswordForm(prev => ({
-                ...prev,
-                error: 'Passwords do not match'
-            }));
-            return;
-        }
-
-        setCreatePasswordForm(prev => ({ ...prev, loading: true, error: '', success: '' }));
-
-        try {
-            await accountService.createPassword(createPasswordForm.password);
-            
-            setCreatePasswordForm(prev => ({
-                ...prev,
-                success: 'Password created successfully!',
-                password: '',
-                confirmPassword: ''
-            }));
-            
-            // Update account info
-            await loadAccountInfo();
-            
-        } catch (error) {
-            setCreatePasswordForm(prev => ({
-                ...prev,
-                error: error.response?.data?.error || 'Failed to create password'
-            }));
-        } finally {
-            setCreatePasswordForm(prev => ({ ...prev, loading: false }));
-        }
-    }
-
     function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-    function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-    function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-    function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-    function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-    function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-    function formatDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -312,10 +205,7 @@ function AccountSettings({ onClose }) {
     }
 
     function formatCooldownDate(dateString) {
-        if (!dateString) return 'Unknown';
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Unknown';
-        return date.toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
@@ -405,7 +295,7 @@ function AccountSettings({ onClose }) {
                                         : 'text-purple-700 hover:bg-purple-100 hover:text-purple-800 border border-purple-200/50'
                                 }`}
                             >
-                                🔒 {accountInfo?.hasPassword ? 'Change Password' : 'Create Password'}
+                                🔒 Change Password
                             </button>
                         </nav>
                     </div>
@@ -429,12 +319,6 @@ function AccountSettings({ onClose }) {
                                                 <span className="text-xs sm:text-sm text-purple-600 font-semibold">Email:</span>
                                                 <div className="font-bold text-purple-800 break-all text-xs sm:text-sm md:text-base">{accountInfo?.email}</div>
                                             </div>
-                                            <div>
-                                                <span className="text-xs sm:text-sm text-purple-600 font-semibold">Account Type:</span>
-                                                <div className="font-bold text-purple-800 text-sm sm:text-base">
-                                                    {accountInfo?.isGoogleUser ? '🟦 Google Account' : '🟣 Standard Account'}
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
 
@@ -445,12 +329,6 @@ function AccountSettings({ onClose }) {
                                                 <span className="text-xs sm:text-sm text-purple-600 font-semibold">Member Since:</span>
                                                 <div className="font-bold text-purple-800 text-sm sm:text-base">
                                                     {formatDate(accountInfo?.created_at)}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <span className="text-xs sm:text-sm text-purple-600 font-semibold">Password Status:</span>
-                                                <div className={`font-bold text-sm sm:text-base ${accountInfo?.hasPassword ? 'text-green-600' : 'text-orange-600'}`}>
-                                                    {accountInfo?.hasPassword ? '✅ Password Set' : '❌ No Password'}
                                                 </div>
                                             </div>
                                         </div>
@@ -486,19 +364,7 @@ function AccountSettings({ onClose }) {
                                     <p className="text-purple-600 font-medium text-sm sm:text-base">Current username: <strong className="text-purple-800">{accountInfo?.username}</strong></p>
                                 </div>
 
-                                {!accountInfo?.hasPassword ? (
-                                    <div className="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 p-4 sm:p-6 rounded-2xl shadow-lg">
-                                        <p className="text-orange-700 font-bold text-base sm:text-lg mb-4">
-                                            You need to create a password before you can change your username.
-                                        </p>
-                                        <button
-                                            onClick={() => setActiveSection('password')}
-                                            className="px-4 sm:px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm sm:text-base"
-                                        >
-                                            Create Password First
-                                        </button>
-                                    </div>
-                                ) : !accountInfo?.cooldowns?.username?.canChange ? (
+                                {!accountInfo?.cooldowns?.username?.canChange ? (
                                     <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 p-4 sm:p-6 rounded-2xl shadow-lg">
                                         <p className="text-yellow-700 font-bold text-base sm:text-lg">
                                             You can change your username again in {accountInfo.cooldowns.username.daysRemaining} days 
@@ -575,19 +441,7 @@ function AccountSettings({ onClose }) {
                                     <p className="text-purple-600 font-medium text-sm sm:text-base">Current email: <strong className="text-purple-800 break-all">{accountInfo?.email}</strong></p>
                                 </div>
 
-                                {!accountInfo?.hasPassword ? (
-                                    <div className="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-300 p-4 sm:p-6 rounded-2xl shadow-lg">
-                                        <p className="text-orange-700 font-bold text-base sm:text-lg mb-4">
-                                            You need to create a password before you can change your email.
-                                        </p>
-                                        <button
-                                            onClick={() => setActiveSection('password')}
-                                            className="px-4 sm:px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm sm:text-base"
-                                        >
-                                            Create Password First
-                                        </button>
-                                    </div>
-                                ) : !accountInfo?.cooldowns?.email?.canChange ? (
+                                {!accountInfo?.cooldowns?.email?.canChange ? (
                                     <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 p-4 sm:p-6 rounded-2xl shadow-lg">
                                         <p className="text-yellow-700 font-bold text-base sm:text-lg">
                                             You can change your email again in {accountInfo.cooldowns.email.daysRemaining} days 
@@ -661,151 +515,75 @@ function AccountSettings({ onClose }) {
                             <div className="space-y-6 sm:space-y-8">
                                 <div>
                                     <h4 className="text-xl sm:text-2xl font-black text-purple-800 mb-3">
-                                        {accountInfo?.hasPassword ? 'Change Password' : 'Create Password'}
+                                        Change Password
                                     </h4>
                                     <p className="text-purple-600 font-medium text-sm sm:text-base">
-                                        {accountInfo?.hasPassword 
-                                            ? 'Update your current password with a new one' 
-                                            : 'Create a password to secure your account and enable username/email changes'
-                                        }
+                                        Update your current password with a new one
                                     </p>
                                 </div>
 
-                                {accountInfo?.hasPassword ? (
-                                    // Change Password Form
-                                    <form onSubmit={handlePasswordUpdate} className="bg-gradient-to-br from-purple-50 to-indigo-100 p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-purple-200/50 shadow-lg space-y-4 sm:space-y-6">
-                                        {passwordForm.error && (
-                                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl text-sm sm:text-base">
-                                                {passwordForm.error}
-                                            </div>
-                                        )}
-                                        {passwordForm.success && (
-                                            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl text-sm sm:text-base">
-                                                {passwordForm.success}
-                                            </div>
-                                        )}
-
-                                        <div>
-                                            <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
-                                                Current Password
-                                            </label>
-                                            <input
-                                                type="password"
-                                                value={passwordForm.currentPassword}
-                                                onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
-                                                className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
-                                                placeholder="Enter your current password"
-                                                required
-                                            />
+                                <form onSubmit={handlePasswordUpdate} className="bg-gradient-to-br from-purple-50 to-indigo-100 p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-purple-200/50 shadow-lg space-y-4 sm:space-y-6">
+                                    {passwordForm.error && (
+                                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl text-sm sm:text-base">
+                                            {passwordForm.error}
                                         </div>
-
-                                        <div>
-                                            <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
-                                                New Password
-                                            </label>
-                                            <input
-                                                type="password"
-                                                value={passwordForm.newPassword}
-                                                onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
-                                                className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
-                                                placeholder="Enter your new password"
-                                                required
-                                            />
+                                    )}
+                                    {passwordForm.success && (
+                                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl text-sm sm:text-base">
+                                            {passwordForm.success}
                                         </div>
+                                    )}
 
-                                        <div>
-                                            <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
-                                                Confirm New Password
-                                            </label>
-                                            <input
-                                                type="password"
-                                                value={passwordForm.confirmNewPassword}
-                                                onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmNewPassword: e.target.value }))}
-                                                className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
-                                                placeholder="Confirm your new password"
-                                                required
-                                            />
-                                        </div>
-
-                                        <button
-                                            type="submit"
-                                            disabled={passwordForm.loading}
-                                            className="w-full p-3 sm:p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-sm sm:text-base md:text-lg transition-all duration-300 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                                        >
-                                            {passwordForm.loading ? 'Updating...' : 'Update Password'}
-                                        </button>
-                                    </form>
-                                ) : (
-                                    // Create Password Form
-                                    <div className="bg-gradient-to-br from-purple-50 to-indigo-100 p-4 sm:p-6 md:p-8 rounded-2xl border-2 border-purple-200/50 shadow-lg space-y-4 sm:space-y-6">
-                                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-xl border-2 border-blue-200">
-                                            <h6 className="font-bold text-blue-700 mb-3 text-sm sm:text-base md:text-lg">Benefits of Creating a Password</h6>
-                                            <ul className="space-y-2 text-xs sm:text-sm md:text-base text-blue-700">
-                                                <li className="flex items-center gap-3">
-                                                    <span className="text-blue-600">•</span>
-                                                    Change your username and email address
-                                                </li>
-                                                <li className="flex items-center gap-3">
-                                                    <span className="text-blue-600">•</span>
-                                                    Enhanced account security
-                                                </li>
-                                                <li className="flex items-center gap-3">
-                                                    <span className="text-blue-600">•</span>
-                                                    Login with either Google or email/password
-                                                </li>
-                                            </ul>
-                                        </div>
-
-                                        <form onSubmit={handleCreatePassword} className="space-y-4 sm:space-y-6">
-                                            {createPasswordForm.error && (
-                                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl text-sm sm:text-base">
-                                                    {createPasswordForm.error}
-                                                </div>
-                                            )}
-                                            {createPasswordForm.success && (
-                                                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl text-sm sm:text-base">
-                                                    {createPasswordForm.success}
-                                                </div>
-                                            )}
-
-                                            <div>
-                                                <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
-                                                    Password
-                                                </label>
-                                                <input
-                                                    type="password"
-                                                    value={createPasswordForm.password}
-                                                    onChange={(e) => setCreatePasswordForm(prev => ({ ...prev, password: e.target.value }))}
-                                                    className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
-                                                    placeholder="Enter a secure password"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
-                                                    Confirm Password
-                                                </label>
-                                                <input
-                                                    type="password"
-                                                    value={createPasswordForm.confirmPassword}
-                                                    onChange={(e) => setCreatePasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                                                    className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
-                                                    placeholder="Confirm your password"
-                                                    required
-                                                />
-                                            </div>
-
-                                            <button
-                                                type="submit"
-                                                disabled={createPasswordForm.loading}
-                                                className="w-full p-3 sm:p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold text-sm sm:text-base md:text-lg transition-all duration-300 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                                            >
-                                                {createPasswordForm.loading ? 'Creating...' : 'Create Password'}
-                                            </button>
-                                        </form>
+                                    <div>
+                                        <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
+                                            Current Password
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={passwordForm.currentPassword}
+                                            onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                                            className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
+                                            placeholder="Enter your current password"
+                                            required
+                                        />
                                     </div>
-                                )}
+
+                                    <div>
+                                        <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
+                                            New Password
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={passwordForm.newPassword}
+                                            onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                                            className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
+                                            placeholder="Enter your new password"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block mb-3 font-bold text-purple-700 text-sm sm:text-base md:text-lg">
+                                            Confirm New Password
+                                        </label>
+                                        <input
+                                            type="password"
+                                            value={passwordForm.confirmNewPassword}
+                                            onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmNewPassword: e.target.value }))}
+                                            className="w-full p-3 sm:p-4 border-2 border-purple-200 rounded-xl text-sm sm:text-base md:text-lg transition-all duration-300 bg-purple-50/50 placeholder-purple-400 focus:outline-none focus:border-purple-500 focus:shadow-lg focus:shadow-purple-200 text-purple-900"
+                                            placeholder="Confirm your new password"
+                                            required
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={passwordForm.loading}
+                                        className="w-full p-3 sm:p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-sm sm:text-base md:text-lg transition-all duration-300 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                                    >
+                                        {passwordForm.loading ? 'Updating...' : 'Update Password'}
+                                    </button>
+                                </form>
                             </div>
                         )}
                     </div>
