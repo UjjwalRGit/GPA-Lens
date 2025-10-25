@@ -241,7 +241,70 @@ function AccountSettings({ onClose }) {
     }
 
     function formatDate(dateString) {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    function formatDate(dateString) {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    function formatDate(dateString) {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    function formatDate(dateString) {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    function formatDate(dateString) {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    function formatDate(dateString) {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+    function formatDate(dateString) {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -249,7 +312,10 @@ function AccountSettings({ onClose }) {
     }
 
     function formatCooldownDate(dateString) {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        if (!dateString) return 'Unknown';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Unknown';
+        return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
